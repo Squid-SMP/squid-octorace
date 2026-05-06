@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "octorace",
+  "version": "${version}",
+  "name": "octorace",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/octorace/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "org.orsa.octorace.Octorace"
+    ]
+  },
+  "mixins": [
+    "octorace.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "polymer-core": ">=${polymer_version}"
+  }
+}
