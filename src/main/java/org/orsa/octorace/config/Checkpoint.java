@@ -8,10 +8,11 @@ public class Checkpoint {
 	public double maxX, maxY, maxZ;
 
 	public String name;
+	public String dimensionId;
 
 	public Checkpoint(double minX, double minY, double minZ,
 	                  double maxX, double maxY, double maxZ,
-	                  String name) {
+	                  String name, String dimensionId) {
 		this.minX = Math.min(minX, maxX);
 		this.minY = Math.min(minY, maxY);
 		this.minZ = Math.min(minZ, maxZ);
@@ -19,6 +20,7 @@ public class Checkpoint {
 		this.maxY = Math.max(minY, maxY);
 		this.maxZ = Math.max(minZ, maxZ);
 		this.name = name;
+		this.dimensionId = dimensionId;
 	}
 
 	public AABB toBox() {

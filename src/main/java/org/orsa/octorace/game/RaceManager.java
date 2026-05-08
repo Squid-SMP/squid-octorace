@@ -202,6 +202,9 @@ public class RaceManager {
 			ServerPlayer player = server.getPlayerList().getPlayer(uuid);
 			if (player == null) continue; // disconnect handler cleans up
 
+			String playerDim = player.level().dimension().identifier().toString();
+			if (!playerDim.equals(config.getDimensionId())) continue;
+
 			int nextIdx = data.nextCheckpoint;
 			if (nextIdx >= checkpoints.size()) continue; // all checkpoints done
 
