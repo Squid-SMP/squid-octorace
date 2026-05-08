@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "octorace:block/jump_pad"
+    }
+  }
+}
