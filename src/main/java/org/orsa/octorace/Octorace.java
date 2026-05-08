@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import org.orsa.octorace.block.JumpPadBlock;
 import org.orsa.octorace.command.OctoraceCommand;
 import org.orsa.octorace.config.RaceConfig;
@@ -22,33 +23,19 @@ public class Octorace implements ModInitializer {
 
     public static RaceManager RACE_MANAGER;
 
+    public static MinecraftServer SERVER;
+
     @Override
     public void onInitialize() {
-        LOGGER.info("Octorace initializing...");
-
         PolymerResourcePackUtils.addModAssets(MOD_ID);
         PolymerResourcePackUtils.markAsRequired();
 
         JumpPadBlock.register();
         AutoConfig.register(RaceConfig.class, GsonConfigSerializer::new);
 
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            RaceConfig config = AutoConfig.getConfigHolder(RaceConfig.class).getConfig();
-            RACE_MANAGER = new RaceManager(server, config);
-            LOGGER.info("Octorace loaded {} checkpoints from config.", config.getCheckpointCount());
-        });
-
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-            if (RACE_MANAGER != null) {
-                RACE_MANAGER.getConfig().save();
-            }
-        });
-
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            if (RACE_MANAGER != null) {
-                RACE_MANAGER.tick();
-            }
-        });
+        ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
+        ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
+        ServerTickEvents.END_SERVER_TICK.register(this::onEndServerTick);
 
         PlayerMovementListener.register();
 
@@ -57,6 +44,28 @@ public class Octorace implements ModInitializer {
         });
 
         LOGGER.info("Octorace initialized.");
+    }
+
+    private void onServerStarting(MinecraftServer server) {
+        SERVER = server;
+
+        RaceConfig config = AutoConfig.getConfigHolder(RaceConfig.class).getConfig();
+        RACE_MANAGER = new RaceManager(server, config);
+        LOGGER.info("Octorace loaded {} checkpoints from config.", config.getCheckpointCount());
+    }
+
+    private void onServerStopping(MinecraftServer server) {
+        if (RACE_MANAGER != null) {
+            RACE_MANAGER.getConfig().save();
+        }
+    }
+
+    private void onEndServerTick(MinecraftServer server) {
+        if (RACE_MANAGER != null) {
+            RACE_MANAGER.tick();
+        }
+
+        JumpPadBlock.endOfTick();
     }
 
     public static Identifier id(String path) {

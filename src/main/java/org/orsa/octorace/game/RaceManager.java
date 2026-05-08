@@ -46,10 +46,8 @@ public class RaceManager {
 	private int countdownTicksRemaining = 0;
 	private long raceStartTimeMillis = 0L;
 
-	private final Map<UUID, Participant> participants = new HashMap<>();
-
-	// Ordered finish list for placement
-	private final List<UUID> finishers = new ArrayList<>();
+	public Map<UUID, Participant> participants = new HashMap<>();
+	public List<UUID> finishers = new ArrayList<>();
 
 	public RaceManager(MinecraftServer server, RaceConfig config) {
 		this.server = server;
@@ -102,7 +100,7 @@ public class RaceManager {
 			teleportPlayer(player, targetLevel, start.x, start.y, start.z, yaw);
 			player.setDeltaMovement(Vec3.ZERO);
 			equipRaceGear(player);
-			participants.put(player.getUUID(), new Participant(player.getUUID(), player.getName().getString()));
+			participants.put(player.getUUID(), new Participant(player, player.getUUID(), player.getName().getString()));
 			player.sendSystemMessage(Component.literal("§eGet ready..."));
 		}
 
@@ -130,7 +128,6 @@ public class RaceManager {
 		countdownTicksRemaining = 0;
 	}
 
-	// Server tick: drive countdown and checkpoint detection
 	public void tick() {
 		if (state == State.COUNTDOWN) {
 			tickCountdown();
@@ -352,7 +349,8 @@ public class RaceManager {
 
 	// --- per-player state ---
 
-	private static class Participant {
+	public static class Participant {
+		final ServerPlayer player;
 		final UUID uuid;
 		final String displayName;
 		int nextCheckpoint = 0;
@@ -360,7 +358,8 @@ public class RaceManager {
 		long finishTimeMillis = 0L;
 		boolean needsRespawnTeleport = false;
 
-		Participant(UUID uuid, String displayName) {
+		Participant(ServerPlayer player, UUID uuid, String displayName) {
+			this.player = player;
 			this.uuid = uuid;
 			this.displayName = displayName;
 		}

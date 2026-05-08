@@ -5,25 +5,24 @@ import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
-import eu.pb4.polymer.core.api.block.PolymerBlock;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -36,23 +35,17 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.NonNull;
 import xyz.nucleoid.packettweaker.PacketContext;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.WeakHashMap;
-
-import static org.orsa.octorace.Octorace.MOD_ID;
+import static org.orsa.octorace.Octorace.*;
 
 public class JumpPadBlock extends Block implements PolymerTexturedBlock {
 	public static final MapCodec<JumpPadBlock> CODEC = simpleCodec(JumpPadBlock::new);
 
 	private static final double LAUNCH_VELOCITY_Y = 1.6D;
 	private static final double HORIZONTAL_BOOST = 1.5D;
-	private static final int COOLDOWN_TICKS = 5;
 	private static final VoxelShape SHAPE = Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
-	private static final Map<UUID, Integer> LAST_LAUNCH_TICK = new WeakHashMap<>();
 
-	private static final Identifier ID = Identifier.fromNamespaceAndPath(MOD_ID, "jump_pad");
-	private static final Identifier BLOCKSTATE_ID = Identifier.fromNamespaceAndPath(MOD_ID, "block/jump_pad");
+	private static final Identifier ID = id("jump_pad");
+	private static final Identifier BLOCKSTATE_ID = id("block/jump_pad");
 
 	public static final ResourceKey<Block> BLOCK_KEY = ResourceKey.create(BuiltInRegistries.BLOCK.key(), ID);
 
@@ -83,9 +76,14 @@ public class JumpPadBlock extends Block implements PolymerTexturedBlock {
 			)
 	);
 
+	@SuppressWarnings("UnstableApiUsage")
+	public static final AttachmentType<Boolean> IS_ON_JUMP_PAD = AttachmentRegistry.create(
+			id("is_on_jump_pad"),
+			builder -> builder.initializer(() -> false)
+	);
 
 	public static void register() {
-		// triggers static initialization of BLOCK, ITEM, and POLYMER_STATE
+		// triggers static initialization
 	}
 
 	public JumpPadBlock(Properties properties) {
@@ -104,45 +102,56 @@ public class JumpPadBlock extends Block implements PolymerTexturedBlock {
 		return POLYMER_STATE;
 	}
 
-	// --- Server-side block geometry / behaviour ---
+	// --- Server-side block geometry ---
 
 	@Override
 	protected @NonNull VoxelShape getShape(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull CollisionContext context) {
 		return SHAPE;
 	}
 
-	@Override
-	public void stepOn(Level level, BlockPos blockPos, BlockState blockState, Entity entity) {
-		if (level.isClientSide()) return;
+	// --- Behaviour ---
 
-		// Don't bounce dropped items — only living entities (players, mobs).
-		if (!(entity instanceof LivingEntity living)) return;
+	public static void endOfTick() {
+		var players = SERVER.getPlayerList().getPlayers();
+		for (var player : players) {
+			var level = player.level();
+			var blockStateBelow = level.getBlockState(player.blockPosition().below());
 
-		// Cooldown: skip if we just launched this entity.
-		Integer last = LAST_LAUNCH_TICK.get(entity.getUUID());
-		if (last != null && entity.tickCount - last < COOLDOWN_TICKS) return;
-		LAST_LAUNCH_TICK.put(entity.getUUID(), entity.tickCount);
+			var wasOnBlock = player.getAttachedOrElse(IS_ON_JUMP_PAD, false);
+			var isOnBlock = blockStateBelow.is(BLOCK);
 
-		Vec3 v = entity.getDeltaMovement();
-		entity.setDeltaMovement(v.x * HORIZONTAL_BOOST, LAUNCH_VELOCITY_Y, v.z * HORIZONTAL_BOOST);
-		entity.hurtMarked = true; // forces velocity sync to client immediately
-		entity.resetFallDistance(); // prevent fall damage from the boost itself
+			if (wasOnBlock || isOnBlock) {
+				playerOnIt(player);
+			}
+
+			player.setAttached(IS_ON_JUMP_PAD, isOnBlock);
+		}
+	}
+
+	public static void playerOnIt(ServerPlayer player) {
+		if (!player.getLastClientInput().jump()) {
+			return;
+		}
+
+		Vec3 v = player.getDeltaMovement();
+		player.setDeltaMovement(v.x * HORIZONTAL_BOOST, LAUNCH_VELOCITY_Y, v.z * HORIZONTAL_BOOST);
+		player.hurtMarked = true; // forces velocity sync to client immediately
+		player.resetFallDistance(); // prevent fall damage from the boost itself
 
 		// Players with an elytra equipped should auto-glide so they don't waste the boost.
-		if (living instanceof Player player && !player.isFallFlying()) {
+		if (!player.isFallFlying()) {
 			if (hasElytra(player)) {
 				player.startFallFlying();
 			}
 		}
 
-		var pos = entity.position();
+		var pos = player.position();
+		var level = player.level();
 		level.playSound(null,
 				pos.x + 0.5, pos.y + 0.5, pos.z + 0.5,
 				SoundEvents.WIND_CHARGE_BURST, SoundSource.BLOCKS,
 				0.8f, 1.4f);
 	}
-
-
 
 	private static boolean hasElytra(Player player) {
 		ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
