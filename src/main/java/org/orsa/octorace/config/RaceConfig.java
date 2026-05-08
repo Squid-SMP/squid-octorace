@@ -9,14 +9,13 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
-// Config is stored globally at config/octorace.json (not per-world).
 @Config(name = "octorace")
 public class RaceConfig implements ConfigData {
 
 	private String dimensionId = null;
 	private SerializableVec3 startPosition = null;
 	private float startYaw = 0f;
-	// Non-final so Gson can deserialize into this field.
+
 	private List<Checkpoint> checkpoints = new ArrayList<>();
 
 	public String getDimensionId() {

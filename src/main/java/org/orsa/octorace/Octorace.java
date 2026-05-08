@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import org.orsa.octorace.block.JumpPadBlock;
+import org.orsa.octorace.block.SpeedPadBlock;
 import org.orsa.octorace.command.OctoraceCommand;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.event.PlayerMovementListener;
@@ -31,6 +32,7 @@ public class Octorace implements ModInitializer {
         PolymerResourcePackUtils.markAsRequired();
 
         JumpPadBlock.register();
+        SpeedPadBlock.register();
         AutoConfig.register(RaceConfig.class, GsonConfigSerializer::new);
 
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
@@ -66,6 +68,7 @@ public class Octorace implements ModInitializer {
         }
 
         JumpPadBlock.endOfTick();
+        SpeedPadBlock.endOfTick();
     }
 
     public static Identifier id(String path) {
