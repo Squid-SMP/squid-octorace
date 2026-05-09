@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import org.orsa.octorace.block.BoostPadBlock;
 import org.orsa.octorace.block.JumpPadBlock;
 import org.orsa.octorace.block.SpeedPadBlock;
 import org.orsa.octorace.command.OctoraceCommand;
@@ -26,13 +27,19 @@ public class Octorace implements ModInitializer {
 
     public static MinecraftServer SERVER;
 
+    public static JumpPadBlock JUMP_PAD_BLOCK;
+    public static BoostPadBlock BOOST_PAD_BLOCK;
+    public static SpeedPadBlock SPEED_PAD_BLOCK;
+
     @Override
     public void onInitialize() {
         PolymerResourcePackUtils.addModAssets(MOD_ID);
         PolymerResourcePackUtils.markAsRequired();
 
-        JumpPadBlock.register();
-        SpeedPadBlock.register();
+        JUMP_PAD_BLOCK = JumpPadBlock.register();
+        BOOST_PAD_BLOCK = BoostPadBlock.register();
+        SPEED_PAD_BLOCK = SpeedPadBlock.register();
+
         AutoConfig.register(RaceConfig.class, GsonConfigSerializer::new);
 
         ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
@@ -67,8 +74,9 @@ public class Octorace implements ModInitializer {
             RACE_MANAGER.tick();
         }
 
-        JumpPadBlock.endOfTick();
-        SpeedPadBlock.endOfTick();
+        JUMP_PAD_BLOCK.endOfTick();
+        BOOST_PAD_BLOCK.endOfTick();
+        SPEED_PAD_BLOCK.endOfTick();
     }
 
     public static Identifier id(String path) {

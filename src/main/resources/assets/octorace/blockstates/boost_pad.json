@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "octorace:block/boost_pad"
+    }
+  }
+}

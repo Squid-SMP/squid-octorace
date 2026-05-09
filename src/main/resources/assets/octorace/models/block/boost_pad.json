@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "octorace:block/jump_pad"
+    "all": "octorace:block/boost_pad"
   }
 }

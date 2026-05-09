@@ -8,18 +8,18 @@ import net.minecraft.world.phys.Vec3;
 
 import org.orsa.octorace.factory.BlockFactory;
 
-public class JumpPadBlock extends PadBlock {
+public class BoostPadBlock extends PadBlock {
 
-	public JumpPadBlock(Properties properties) {
+	public BoostPadBlock(Properties properties) {
 		super(properties);
 	}
 
-	public static JumpPadBlock register() {
+	public static BoostPadBlock register() {
 		var properties = BlockBehaviour.Properties.of()
-				.mapColor(MapColor.COLOR_LIGHT_BLUE)
+				.mapColor(MapColor.COLOR_RED)
 				.sound(SoundType.METAL);
 
-		var factory = new BlockFactory<>(JumpPadBlock::new, "jump_pad", properties);
+		var factory = new BlockFactory<>(BoostPadBlock::new, "boost_pad", properties);
 		var block = factory.block;
 
 		block.init(factory);
@@ -31,12 +31,12 @@ public class JumpPadBlock extends PadBlock {
 	@Override
 	protected void playerJumpedWhileOn(ServerPlayer player) {
 		super.playerJumpedWhileOn(player);
-		Vec3 v = player.getDeltaMovement();
+		Vec3 look = player.getLookAngle();
 
-		var xzBoost = 1.5;
-		var yMomentum = 1.6;
+		var yMomentum = 1.3;
+		var speed = 1.6;
 
-		player.setDeltaMovement(v.x * xzBoost, yMomentum, v.z * xzBoost);
+		player.setDeltaMovement(look.x * speed, yMomentum, look.z * speed);
 		player.hurtMarked = true;
 		player.resetFallDistance();
 	}

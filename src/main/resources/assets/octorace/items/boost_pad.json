@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "octorace:block/jump_pad"
+    "model": "octorace:block/boost_pad"
   }
 }
