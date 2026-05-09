@@ -4,6 +4,8 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -28,6 +30,10 @@ public class RaceConfig implements ConfigData {
 
 	public Identifier getDimensionIdentifier() {
 		return dimensionId == null ? null : Identifier.parse(dimensionId);
+	}
+
+	public ResourceKey<Level> getDimensionKey() {
+		return ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, getDimensionIdentifier());
 	}
 
 	public Vec3 getStartPosition() {

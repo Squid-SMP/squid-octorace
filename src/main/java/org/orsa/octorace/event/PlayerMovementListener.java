@@ -36,7 +36,7 @@ public class PlayerMovementListener {
 			return;
 		}
 
-		Octorace.RACE_MANAGER.onParticipantDisconnect(player);
+		Octorace.RACE_MANAGER.onPlayerDisconnect(player);
 	}
 
 	private static void onDeath(LivingEntity entity, DamageSource source) {
@@ -45,7 +45,7 @@ public class PlayerMovementListener {
 		}
 
 		if (entity instanceof ServerPlayer sp) {
-			Octorace.RACE_MANAGER.onParticipantDied(sp);
+			Octorace.RACE_MANAGER.onPlayerDied(sp);
 		}
 	}
 
@@ -54,7 +54,7 @@ public class PlayerMovementListener {
 			return;
 		}
 
-		Octorace.RACE_MANAGER.onParticipantRespawn(player);
+		Octorace.RACE_MANAGER.onPlayerRespawn(player);
 	}
 
 	private static InteractionResult onWandAttackBlock(Player player, Level world, InteractionHand hand, BlockPos pos, Direction direction) {

@@ -9,6 +9,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import org.orsa.octorace.block.BoostPadBlock;
 import org.orsa.octorace.block.JumpPadBlock;
 import org.orsa.octorace.block.SpeedPadBlock;
@@ -42,7 +45,7 @@ public class Octorace implements ModInitializer {
 
         AutoConfig.register(RaceConfig.class, GsonConfigSerializer::new);
 
-        ServerLifecycleEvents.SERVER_STARTING.register(this::onServerStarting);
+        ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
         ServerTickEvents.END_SERVER_TICK.register(this::onEndServerTick);
 
@@ -55,11 +58,11 @@ public class Octorace implements ModInitializer {
         LOGGER.info("Octorace initialized.");
     }
 
-    private void onServerStarting(MinecraftServer server) {
+    private void onServerStarted(MinecraftServer server) {
         SERVER = server;
 
         RaceConfig config = AutoConfig.getConfigHolder(RaceConfig.class).getConfig();
-        RACE_MANAGER = new RaceManager(server, config);
+        RACE_MANAGER = new RaceManager(config);
         LOGGER.info("Octorace loaded {} checkpoints from config.", config.getCheckpointCount());
     }
 
@@ -82,4 +85,10 @@ public class Octorace implements ModInitializer {
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
+
+    public static void playSoundFor(ServerPlayer player, SoundEvent sound, float volume, float pitch) {
+        var level = player.level();
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), sound, SoundSource.MASTER, volume, pitch);
+    }
+
 }

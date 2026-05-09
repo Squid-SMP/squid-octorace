@@ -21,7 +21,6 @@ public class OctoraceStatusCommand {
         RaceManager raceManager = Octorace.RACE_MANAGER;
         RaceConfig config = raceManager.getConfig();
         String message = "§6=== Octorace Status ===\n" +
-                "§eState: §f" + raceManager.getState().name() + '\n' +
                 "§eCheckpoints: §f" + config.getCheckpointCount() + '\n' +
                 "§eStart configured: §f" + (config.getStartPosition() != null) + '\n' +
                 "§eDimension: §f" + (config.getDimensionId() == null ? "<unset>" : config.getDimensionId()) + '\n' +

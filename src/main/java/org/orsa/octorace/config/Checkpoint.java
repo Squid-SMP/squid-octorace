@@ -1,5 +1,6 @@
 package org.orsa.octorace.config;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -35,5 +36,11 @@ public class Checkpoint {
 		return String.format("%s (%.1f,%.1f,%.1f → %.1f,%.1f,%.1f)",
 				name == null ? "checkpoint" : name,
 				minX, minY, minZ, maxX, maxY, maxZ);
+	}
+
+	public Boolean playerIntersects(ServerPlayer player) {
+		var checkpointBox = toBox();
+		var playerBox = player.getBoundingBox();
+		return checkpointBox.intersects(playerBox);
 	}
 }
