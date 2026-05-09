@@ -37,6 +37,7 @@ public class SpeedPadBlock extends PadBlock {
 
 		var amplifier = 4;
 
-		player.addEffect(new MobEffectInstance(MobEffects.SPEED, durationTicks, amplifier));
+		var effect = new MobEffectInstance(MobEffects.SPEED, durationTicks, amplifier, false, false);
+		player.addEffect(effect);
 	}
 }
