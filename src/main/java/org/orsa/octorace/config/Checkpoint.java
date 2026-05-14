@@ -3,6 +3,7 @@ package org.orsa.octorace.config;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.orsa.octorace.item.OctoraceTrident;
 
 public class Checkpoint {
 	public double minX, minY, minZ;
@@ -31,8 +32,9 @@ public class Checkpoint {
 	}
 
 	public String describe() {
-		return String.format("%s (%.1f,%.1f,%.1f → %.1f,%.1f,%.1f)",
+		return String.format("%s%s (%.1f,%.1f,%.1f → %.1f,%.1f,%.1f)",
 				name == null ? "checkpoint" : name,
+				trident ? " (🔱)" : "",
 				minX, minY, minZ, maxX, maxY, maxZ);
 	}
 
@@ -43,6 +45,15 @@ public class Checkpoint {
 	}
 
 	public void onPlayerCrossed(ServerPlayer player) {
+		if (!trident) {
+			return;
+		}
 
+		if (OctoraceTrident.playerHasTrident(player)) {
+			OctoraceTrident.removeTrident(player);
+		}
+		else {
+			OctoraceTrident.giveTrident(player);
+		}
 	}
 }

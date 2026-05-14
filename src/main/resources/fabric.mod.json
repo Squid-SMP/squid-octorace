@@ -7,6 +7,7 @@
   "authors": [],
   "contact": {},
   "license": "All-Rights-Reserved",
+  "accessWidener": "octorace.accesswidener",
   "icon": "assets/octorace/icon.png",
   "environment": "server",
   "entrypoints": {

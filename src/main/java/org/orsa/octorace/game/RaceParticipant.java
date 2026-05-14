@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.Vec3;
 import org.orsa.octorace.config.Checkpoint;
+import org.orsa.octorace.item.OctoraceTrident;
 
 import java.util.UUID;
 
@@ -64,6 +65,8 @@ public class RaceParticipant {
             nextCheckpoint.onPlayerCrossed(player);
             onCheckpointReached();
         }
+
+        OctoraceTrident.enforceTridentSlot(player);
     }
 
     private void onCheckpointReached() {

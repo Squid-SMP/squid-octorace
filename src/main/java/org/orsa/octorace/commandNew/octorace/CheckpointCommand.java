@@ -101,9 +101,11 @@ public class CheckpointCommand {
             return 0;
         }
 
-        checkpoint.get().trident = true;
+        boolean newValue = !checkpoint.get().trident;
+        checkpoint.get().trident = newValue;
+        config.save();
 
-        var message = Component.literal("Checkpoint " + checkpointId + " now toggles the player's trident.").withStyle(ChatFormatting.GREEN);
+        var message = Component.literal("Checkpoint " + checkpointId + " trident: " + newValue).withStyle(ChatFormatting.GREEN);
         ctx.getSource().sendSuccess(() -> message, false);
 
         return 1;
@@ -129,6 +131,7 @@ public class CheckpointCommand {
 
         checkpoints.add(position, checkpoints.remove(checkpointId));
         var newIndex = checkpoints.indexOf(checkpoint.get());
+        config.save();
 
         var message = Component.literal("Checkpoint " + checkpointId + " moved to position " + newIndex + ".").withStyle(ChatFormatting.GREEN);
         ctx.getSource().sendSuccess(() -> message, false);
@@ -148,6 +151,7 @@ public class CheckpointCommand {
         }
 
         checkpoint.get().name = name;
+        config.save();
 
         var message = Component.literal("Changed name of checkpoint " + checkpointId + " to \"" + name + "\".").withStyle(ChatFormatting.GREEN);
         ctx.getSource().sendSuccess(() -> message, false);
