@@ -4,31 +4,30 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.item.Item;
 
 import java.util.function.Function;
 
 import static org.orsa.octorace.Octorace.id;
 
-public class BlockFactory<T extends Block> {
+public class ItemFactory<T extends Item> {
 
     private Boolean hasRegistered = false;
 
     public String name;
-    public T block;
+    public T item;
     public Identifier id;
-    public ResourceKey<Block> resourceKey;
+    public ResourceKey<Item> resourceKey;
 
-    public BlockFactory(Function<BlockBehaviour.Properties, T> constructor, String name, BlockBehaviour.Properties properties) {
+    public ItemFactory(Function<Item.Properties, T> constructor, String name, Item.Properties properties) {
         this.name = name;
 
         id = id(name);
-        resourceKey = ResourceKey.create(BuiltInRegistries.BLOCK.key(), id);
+        resourceKey = ResourceKey.create(BuiltInRegistries.ITEM.key(), id);
 
         properties.setId(resourceKey);
 
-        block = constructor.apply(properties);
+        item = constructor.apply(properties);
     }
 
     public void register() {
@@ -36,7 +35,7 @@ public class BlockFactory<T extends Block> {
             return;
         }
 
-        Registry.register(BuiltInRegistries.BLOCK, resourceKey, block);
+        Registry.register(BuiltInRegistries.ITEM, resourceKey, item);
 
         hasRegistered = true;
     }

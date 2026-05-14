@@ -21,7 +21,7 @@ public class OctoraceListCheckpointsCommand {
 
     private static int listCheckpoints(CommandContext<CommandSourceStack> ctx) {
         RaceConfig config = Octorace.RACE_MANAGER.getConfig();
-        List<Checkpoint> checkpoints = config.getCheckpoints();
+        List<Checkpoint> checkpoints = config.checkpoints;
         if (checkpoints.isEmpty()) {
             ctx.getSource().sendSuccess(() -> Component.literal("§7No checkpoints set."), false);
             return 1;

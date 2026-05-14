@@ -31,46 +31,46 @@ public class OctoraceWandCommand {
     }
 
     private static int giveWand(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        ServerPlayer player = ctx.getSource().getPlayerOrException();
-        ItemStack wand = WandManager.createWand();
-        if (!player.getInventory().add(wand)) {
-            player.drop(wand, false);
-        }
-        ctx.getSource().sendSuccess(() -> Component.literal(
-                "§aOctorace Wand given. §7Left-click to set corner 1, right-click to set corner 2."), false);
+//        ServerPlayer player = ctx.getSource().getPlayerOrException();
+//        ItemStack wand = WandManager.createWand();
+//        if (!player.getInventory().add(wand)) {
+//            player.drop(wand, false);
+//        }
+//        ctx.getSource().sendSuccess(() -> Component.literal(
+//                "§aOctorace Wand given. §7Left-click to set corner 1, right-click to set corner 2."), false);
         return 1;
     }
 
     private static int confirmWand(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
-        ServerPlayer player = ctx.getSource().getPlayerOrException();
-        UUID uuid = player.getUUID();
-
-        if (!WandManager.hasBothPositions(uuid)) {
-            ctx.getSource().sendFailure(Component.literal(
-                    "§cSet both corners first (left-click and right-click with the wand)."));
-            return 0;
-        }
-
-        BlockPos a = WandManager.getPos1(uuid);
-        BlockPos b = WandManager.getPos2(uuid);
-
-        double minX = Math.min(a.getX(), b.getX());
-        double minY = Math.min(a.getY(), b.getY());
-        double minZ = Math.min(a.getZ(), b.getZ());
-        double maxX = Math.max(a.getX(), b.getX()) + 1.0;
-        double maxY = Math.max(a.getY(), b.getY()) + 1.0;
-        double maxZ = Math.max(a.getZ(), b.getZ()) + 1.0;
-
-        Checkpoint checkpoint = new Checkpoint(minX, minY, minZ, maxX, maxY, maxZ, name, WandManager.getWandDimension(uuid));
-        RaceConfig config = Octorace.RACE_MANAGER.getConfig();
-        config.addCheckpoint(checkpoint);
-        config.save();
-
-        WandManager.clear(uuid);
-
-        final int index = config.getCheckpointCount();
-        ctx.getSource().sendSuccess(() -> Component.literal(
-                "§aCheckpoint #" + index + " saved: " + checkpoint.describe()), true);
+//        ServerPlayer player = ctx.getSource().getPlayerOrException();
+//        UUID uuid = player.getUUID();
+//
+//        if (!WandManager.hasBothPositions(uuid)) {
+//            ctx.getSource().sendFailure(Component.literal(
+//                    "§cSet both corners first (left-click and right-click with the wand)."));
+//            return 0;
+//        }
+//
+//        BlockPos a = WandManager.getPos1(uuid);
+//        BlockPos b = WandManager.getPos2(uuid);
+//
+//        double minX = Math.min(a.getX(), b.getX());
+//        double minY = Math.min(a.getY(), b.getY());
+//        double minZ = Math.min(a.getZ(), b.getZ());
+//        double maxX = Math.max(a.getX(), b.getX()) + 1.0;
+//        double maxY = Math.max(a.getY(), b.getY()) + 1.0;
+//        double maxZ = Math.max(a.getZ(), b.getZ()) + 1.0;
+//
+//        Checkpoint checkpoint = new Checkpoint(minX, minY, minZ, maxX, maxY, maxZ, name, WandManager.getWandDimension(uuid));
+//        RaceConfig config = Octorace.RACE_MANAGER.getConfig();
+//        config.addCheckpoint(checkpoint);
+//        config.save();
+//
+//        WandManager.clear(uuid);
+//
+//        final int index = config.getCheckpointCount();
+//        ctx.getSource().sendSuccess(() -> Component.literal(
+//                "§aCheckpoint #" + index + " saved: " + checkpoint.describe()), true);
         return 1;
     }
 }

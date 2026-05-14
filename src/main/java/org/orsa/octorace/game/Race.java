@@ -47,7 +47,7 @@ public class Race {
     public Race(RaceManager manager, List<ServerPlayer> players) {
         this.manager = manager;
         this.config = manager.getConfig();
-        this.checkpoints = config.getCheckpoints();
+        this.checkpoints = config.checkpoints;
 
         dimension = SERVER.getLevel(config.getDimensionKey());
         startPos = config.getStartPosition();

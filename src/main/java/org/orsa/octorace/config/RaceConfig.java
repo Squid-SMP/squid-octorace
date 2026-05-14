@@ -3,6 +3,7 @@ package org.orsa.octorace.config;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
@@ -10,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Config(name = "octorace")
 public class RaceConfig implements ConfigData {
@@ -18,7 +20,7 @@ public class RaceConfig implements ConfigData {
 	private SerializableVec3 startPosition = null;
 	private float startYaw = 0f;
 
-	private List<Checkpoint> checkpoints = new ArrayList<>();
+	public List<Checkpoint> checkpoints = new ArrayList<>();
 
 	public String getDimensionId() {
 		return dimensionId;
@@ -47,17 +49,31 @@ public class RaceConfig implements ConfigData {
 
 	public float getStartYaw() { return startYaw; }
 
-	public List<Checkpoint> getCheckpoints() {
-		return checkpoints;
-	}
-
 	public int getCheckpointCount() {
 		return checkpoints.size();
 	}
 
-	public void addCheckpoint(Checkpoint cp) {
-		checkpoints.add(cp);
+	public Optional<Checkpoint> getCheckpoint(int id) {
+		if (id < 0 || id >= checkpoints.size()) {
+			return Optional.empty();
+		}
+		return Optional.of(checkpoints.get(id));
+	}
+
+	public Checkpoint addCheckpoint(BlockPos pos1, BlockPos pos2, String name) {
+		double minX = Math.min(pos1.getX(), pos2.getX());
+		double minY = Math.min(pos1.getY(), pos2.getY());
+		double minZ = Math.min(pos1.getZ(), pos2.getZ());
+		double maxX = Math.max(pos1.getX(), pos2.getX()) + 1.0;
+		double maxY = Math.max(pos1.getY(), pos2.getY()) + 1.0;
+		double maxZ = Math.max(pos1.getZ(), pos2.getZ()) + 1.0;
+
+		Checkpoint checkpoint = new Checkpoint(minX, minY, minZ, maxX, maxY, maxZ, name);
+		checkpoints.add(checkpoint);
+
 		save();
+
+		return checkpoint;
 	}
 
 	public boolean removeCheckpoint(int index) {

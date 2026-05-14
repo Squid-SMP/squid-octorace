@@ -1,6 +1,7 @@
 package org.orsa.octorace;
 
 import com.mojang.logging.LogUtils;
+import de.maxhenkel.admiral.MinecraftAdmiral;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
@@ -12,12 +13,18 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import org.orsa.octorace.commandNew.CustomArgumentTypes;
 import org.orsa.octorace.block.BoostPadBlock;
 import org.orsa.octorace.block.JumpPadBlock;
 import org.orsa.octorace.block.SpeedPadBlock;
-import org.orsa.octorace.command.OctoraceCommand;
+import org.orsa.octorace.commandNew.octorace.CheckpointCommand;
+import org.orsa.octorace.commandNew.octorace.WandCommand;
+import org.orsa.octorace.item.WandItem;
+import org.orsa.octorace.commandNew.octorace.PartyCommand;
+import org.orsa.octorace.commandNew.octorace.StartCommand;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.event.PlayerMovementListener;
+import org.orsa.octorace.game.PartyManager;
 import org.orsa.octorace.game.RaceManager;
 import org.slf4j.Logger;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
@@ -26,9 +33,15 @@ public class Octorace implements ModInitializer {
     public static final String MOD_ID = "octorace";
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final String PLAYER_PERM = "octorace.player";
+    public static final String ADMIN_PERM = "octorace.admin";
+
     public static RaceManager RACE_MANAGER;
+    public static PartyManager PARTY_MANAGER;
 
     public static MinecraftServer SERVER;
+
+    public static WandItem WAND_ITEM;
 
     public static JumpPadBlock JUMP_PAD_BLOCK;
     public static BoostPadBlock BOOST_PAD_BLOCK;
@@ -38,6 +51,8 @@ public class Octorace implements ModInitializer {
     public void onInitialize() {
         PolymerResourcePackUtils.addModAssets(MOD_ID);
         PolymerResourcePackUtils.markAsRequired();
+
+        WAND_ITEM = WandItem.register();
 
         JUMP_PAD_BLOCK = JumpPadBlock.register();
         BOOST_PAD_BLOCK = BoostPadBlock.register();
@@ -52,7 +67,13 @@ public class Octorace implements ModInitializer {
         PlayerMovementListener.register();
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> {
-            OctoraceCommand.register(dispatcher);
+            MinecraftAdmiral.builder(dispatcher, registryAccess)
+                    .addArgumentTypes(CustomArgumentTypes::register)
+                    .addCommandClasses(StartCommand.class)
+                    .addCommandClasses(PartyCommand.class)
+                    .addCommandClasses(WandCommand.class)
+                    .addCommandClasses(CheckpointCommand.class)
+                    .build();
         });
 
         LOGGER.info("Octorace initialized.");
@@ -63,6 +84,7 @@ public class Octorace implements ModInitializer {
 
         RaceConfig config = AutoConfig.getConfigHolder(RaceConfig.class).getConfig();
         RACE_MANAGER = new RaceManager(config);
+        PARTY_MANAGER = new PartyManager();
         LOGGER.info("Octorace loaded {} checkpoints from config.", config.getCheckpointCount());
     }
 

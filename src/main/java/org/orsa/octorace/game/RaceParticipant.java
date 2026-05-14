@@ -61,6 +61,7 @@ public class RaceParticipant {
 
         nextCheckpoint = race.getCheckpoint(nextCheckpointIdx);
         if (nextCheckpoint.playerIntersects(player)) {
+            nextCheckpoint.onPlayerCrossed(player);
             onCheckpointReached();
         }
     }

@@ -30,12 +30,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jspecify.annotations.NonNull;
 import org.orsa.octorace.factory.BlockFactory;
-import org.orsa.octorace.interfaces.OrsaBlock;
+import org.orsa.octorace.factory.ManufacturedBlock;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import static org.orsa.octorace.Octorace.*;
 
-public class PadBlock extends Block implements PolymerTexturedBlock, OrsaBlock<PadBlock> {
+public class PadBlock extends Block implements PolymerTexturedBlock, ManufacturedBlock<PadBlock> {
 
     public VoxelShape shape = Shapes.box(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
     public MapCodec<BoostPadBlock> codec = simpleCodec(BoostPadBlock::new);
