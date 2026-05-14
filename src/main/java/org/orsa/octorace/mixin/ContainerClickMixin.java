@@ -4,13 +4,17 @@ import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import org.orsa.octorace.Octorace;
 import org.orsa.octorace.item.OctoraceTrident;
+import org.orsa.octorace.item.UnmoveableItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ContainerClickMixin {
@@ -22,29 +26,34 @@ public class ContainerClickMixin {
     private void onContainerClick(ServerboundContainerClickPacket packet, CallbackInfo ci) {
         AbstractContainerMenu menu = player.containerMenu;
 
-        if (tridentInSlot(menu, packet.slotNum())) {
-            menu.sendAllDataToRemote();
-            ci.cancel();
-            return;
-        }
+        for (var unmoveableItem : Octorace.unmoveableItems) {
+            if (!unmoveableItem.activePlayers.contains(player)) {
+                continue;
+            }
 
-        for (var index : packet.changedSlots().keySet()) {
-            if (tridentInSlot(menu, index)) {
+            if (itemInSlot(menu, packet.slotNum(), unmoveableItem)) {
                 menu.sendAllDataToRemote();
                 ci.cancel();
-                return;
+                continue;
+            }
+
+            for (var index : packet.changedSlots().keySet()) {
+                if (itemInSlot(menu, index, unmoveableItem)) {
+                    menu.sendAllDataToRemote();
+                    ci.cancel();
+                }
             }
         }
     }
 
     @Unique
-    private boolean tridentInSlot(AbstractContainerMenu menu, int slotIndex) {
+    private boolean itemInSlot(AbstractContainerMenu menu, int slotIndex, UnmoveableItem unmoveableItem) {
         if (slotIndex < 0 || slotIndex >= menu.slots.size()) {
             return false;
         }
 
         var slot = menu.slots.get(slotIndex);
         var item = slot.getItem();
-        return OctoraceTrident.isOctoraceTrident(item);
+        return unmoveableItem.isItem(item);
     }
 }

@@ -49,11 +49,6 @@ public class Checkpoint {
 			return;
 		}
 
-		if (OctoraceTrident.playerHasTrident(player)) {
-			OctoraceTrident.removeTrident(player);
-		}
-		else {
-			OctoraceTrident.giveTrident(player);
-		}
+		OctoraceTrident.togglePlayer(player);
 	}
 }

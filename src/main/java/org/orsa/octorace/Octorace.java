@@ -8,20 +8,19 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.orsa.octorace.commandNew.CustomArgumentTypes;
 import org.orsa.octorace.block.BoostPadBlock;
 import org.orsa.octorace.block.JumpPadBlock;
 import org.orsa.octorace.block.SpeedPadBlock;
 import org.orsa.octorace.commandNew.octorace.CheckpointCommand;
 import org.orsa.octorace.commandNew.octorace.WandCommand;
+import org.orsa.octorace.item.OctoraceTrident;
+import org.orsa.octorace.item.UnmoveableItem;
 import org.orsa.octorace.item.WandItem;
 import org.orsa.octorace.commandNew.octorace.PartyCommand;
 import org.orsa.octorace.commandNew.octorace.StartCommand;
@@ -31,6 +30,8 @@ import org.orsa.octorace.game.PartyManager;
 import org.orsa.octorace.game.RaceManager;
 import org.slf4j.Logger;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+
+import java.util.List;
 
 public class Octorace implements ModInitializer {
     public static final String MOD_ID = "octorace";
@@ -49,6 +50,8 @@ public class Octorace implements ModInitializer {
     public static JumpPadBlock JUMP_PAD_BLOCK;
     public static BoostPadBlock BOOST_PAD_BLOCK;
     public static SpeedPadBlock SPEED_PAD_BLOCK;
+
+    public static List<UnmoveableItem> unmoveableItems;
 
     @Override
     public void onInitialize() {
@@ -89,6 +92,10 @@ public class Octorace implements ModInitializer {
         RACE_MANAGER = new RaceManager(config);
         PARTY_MANAGER = new PartyManager();
         LOGGER.info("Octorace loaded {} checkpoints from config.", config.getCheckpointCount());
+
+        OctoraceTrident.init();
+
+        unmoveableItems = List.of(OctoraceTrident.unmoveable);
     }
 
     private void onServerStopping(MinecraftServer server) {
@@ -102,9 +109,11 @@ public class Octorace implements ModInitializer {
             RACE_MANAGER.tick();
         }
 
-        JUMP_PAD_BLOCK.endOfTick();
-        BOOST_PAD_BLOCK.endOfTick();
-        SPEED_PAD_BLOCK.endOfTick();
+        JUMP_PAD_BLOCK.tick();
+        BOOST_PAD_BLOCK.tick();
+        SPEED_PAD_BLOCK.tick();
+
+        OctoraceTrident.tick();
     }
 
     public static Identifier id(String path) {

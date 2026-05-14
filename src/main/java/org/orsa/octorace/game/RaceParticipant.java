@@ -65,8 +65,6 @@ public class RaceParticipant {
             nextCheckpoint.onPlayerCrossed(player);
             onCheckpointReached();
         }
-
-        OctoraceTrident.enforceTridentSlot(player);
     }
 
     private void onCheckpointReached() {

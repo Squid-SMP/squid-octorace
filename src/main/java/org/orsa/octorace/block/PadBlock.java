@@ -82,7 +82,7 @@ public class PadBlock extends Block implements PolymerTexturedBlock, Manufacture
 
     // --- Behaviour ---
 
-    public void endOfTick() {
+    public void tick() {
         var players = SERVER.getPlayerList().getPlayers();
         for (var player : players) {
             var level = player.level();
