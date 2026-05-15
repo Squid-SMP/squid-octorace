@@ -11,6 +11,11 @@ public class TimeTrialsRace extends Race {
     }
 
     @Override
+    protected void announceNewRace() {
+        broadcast("§7Starting time trials race.");
+    }
+
+    @Override
     protected void onAllPlayersFinished() {
         broadcast(" ");
 

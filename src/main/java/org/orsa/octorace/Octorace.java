@@ -88,6 +88,7 @@ public class Octorace implements ModInitializer {
                     .addCommandClasses(CheckpointCommand.class)
                     .addCommandClasses(SetStartCommand.class)
                     .addCommandClasses(SetLobbyCommand.class)
+                    .addCommandClasses(RankingsCommand.class)
 //                    .addCommandClasses(TestCommand.class)
                     .build();
         });

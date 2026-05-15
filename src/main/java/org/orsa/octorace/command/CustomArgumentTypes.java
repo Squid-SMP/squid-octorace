@@ -14,6 +14,29 @@ public class CustomArgumentTypes {
 
     public static void register(ArgumentTypeRegistry registry) {
 //        registerEnum(registry, CheckpointCommand.CheckpointEditAction.class);
+        registerPlayerName(registry);
+    }
+
+    private static void registerPlayerName(ArgumentTypeRegistry registry) {
+        registry.register(
+                PlayerNameArg.class,
+                new ArgumentTypeSupplier<CommandSourceStack, PlayerNameArg, String>() {
+                    @Override
+                    public ArgumentType<String> get() {
+                        return StringArgumentType.word();
+                    }
+
+                    @Override
+                    public SuggestionProvider<CommandSourceStack> getSuggestionProvider() {
+                        return (ctx, builder) -> {
+                            var players = ctx.getSource().getServer().getPlayerList().getPlayers();
+                            var names = players.stream().map(p -> p.getName().getString()).toList();
+                            return SharedSuggestionProvider.suggest(names, builder);
+                        };
+                    }
+                },
+                (ctx, s) -> new PlayerNameArg(s)
+        );
     }
 
     private static <T extends Enum<T>> void registerEnum(ArgumentTypeRegistry registry, Class<T> enumClass) {

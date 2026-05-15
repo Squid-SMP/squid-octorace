@@ -6,6 +6,10 @@ import de.maxhenkel.admiral.annotations.RequiresPermission;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.orsa.octorace.Octorace.*;
 
@@ -52,6 +56,33 @@ public class StartCommand {
             LOGGER.error("startTimeTrials failed", e);
             sourcePlayer.sendSystemMessage(Component.literal(e.toString()));
         }
+
+        return 1;
+    }
+
+    @Command({"start","globalVersus"})
+    @RequiresPermission(ADMIN_PERM)
+    public int startGlobalVersus(CommandContext<CommandSourceStack> ctx) {
+        var source = ctx.getSource();
+        var sourcePlayer = source.getPlayer();
+
+        List<ServerPlayer> playersInDimension = new ArrayList<>();
+        for (var player : SERVER.getPlayerList().getPlayers()) {
+            if (player.level() == RACE_MANAGER.dimension) {
+                playersInDimension.add(player);
+            }
+        }
+
+        if (playersInDimension.isEmpty() || playersInDimension.size() == 1) {
+            var message = Component.literal("Not enough player in the correct dimension. Need at least two players.").withStyle(ChatFormatting.RED);
+            source.sendFailure(message);
+            return 0;
+        }
+
+        var successMessage = Component.literal("Starting race!").withStyle(ChatFormatting.GREEN);
+        source.sendSuccess(() -> successMessage, false);
+
+        RACE_MANAGER.startRace(playersInDimension);
 
         return 1;
     }

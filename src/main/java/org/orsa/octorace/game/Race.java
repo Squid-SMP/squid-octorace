@@ -65,13 +65,17 @@ public class Race {
             participants.add(participant);
         }
 
+        announceNewRace();
+
         startCountdown();
+    }
+
+    protected void announceNewRace() {
+        broadcast("§7Starting versus race.");
     }
 
     private void startCountdown() {
         countdownTicksRemaining = COUNTDOWN_TICKS;
-
-        Octorace.LOGGER.info("Octorace countdown started with {} player(s).", participants.size());
 
         for (var participant : participants) {
             teleportToStart(participant);
