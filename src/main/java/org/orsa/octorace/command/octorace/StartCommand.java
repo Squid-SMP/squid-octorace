@@ -1,15 +1,10 @@
-package org.orsa.octorace.commandNew.octorace;
+package org.orsa.octorace.command.octorace;
 
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import org.orsa.octorace.Octorace;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.orsa.octorace.Octorace.PARTY_MANAGER;
 import static org.orsa.octorace.Octorace.RACE_MANAGER;

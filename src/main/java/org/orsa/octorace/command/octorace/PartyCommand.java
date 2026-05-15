@@ -1,4 +1,4 @@
-package org.orsa.octorace.commandNew.octorace;
+package org.orsa.octorace.command.octorace;
 
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;

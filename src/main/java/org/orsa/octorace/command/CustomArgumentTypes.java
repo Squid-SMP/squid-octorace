@@ -1,4 +1,4 @@
-package org.orsa.octorace.commandNew;
+package org.orsa.octorace.command;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -7,7 +7,6 @@ import de.maxhenkel.admiral.argumenttype.ArgumentTypeRegistry;
 import de.maxhenkel.admiral.argumenttype.ArgumentTypeSupplier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import org.orsa.octorace.commandNew.octorace.CheckpointCommand;
 
 import java.util.Arrays;
 
