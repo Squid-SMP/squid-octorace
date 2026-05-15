@@ -76,6 +76,13 @@ public class Race {
 
     private void teleportToStart(RaceParticipant participant) {
         var player = participant.player;
+
+        player.setInvulnerable(true);
+
+        player.setHealth(player.getMaxHealth());
+        player.getFoodData().setFoodLevel(20);
+        player.getFoodData().setSaturation(5.0f);
+
         player.teleportTo(dimension, startPos.x, startPos.y, startPos.z, new HashSet<>(), startYaw, 0, true);
         player.setDeltaMovement(Vec3.ZERO);
         player.sendSystemMessage(Component.literal("§eGet ready..."));
@@ -168,6 +175,11 @@ public class Race {
                 break;
 
             default:
+        }
+
+        for (var participant : participants) {
+            var player = participant.player;
+            player.setInvulnerable(false);
         }
 
         manager.onRaceEnded(this);

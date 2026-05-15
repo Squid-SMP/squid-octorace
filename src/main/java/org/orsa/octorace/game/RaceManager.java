@@ -6,6 +6,8 @@ import org.orsa.octorace.config.RaceConfig;
 
 import java.util.*;
 
+import static org.orsa.octorace.Octorace.LOGGER;
+
 public class RaceManager {
 
 	private final RaceConfig config;
@@ -13,12 +15,12 @@ public class RaceManager {
 	public Map<UUID, RaceParticipant> allParticipants = new HashMap<>();
 	public List<Race> ongoingRaces = new ArrayList<>();
 
-	public TimeTrialsStorage timeTrialsStorage;
+	public RaceManagerStorage raceManagerStorage;
 
 	public RaceManager(RaceConfig config) {
 		this.config = config;
 
-		timeTrialsStorage = TimeTrialsStorage.get(Octorace.SERVER);
+		raceManagerStorage = RaceManagerStorage.get(Octorace.SERVER);
 	}
 
 	public RaceConfig getConfig() {
@@ -31,14 +33,23 @@ public class RaceManager {
 		}
 
 		var race = new Race(this, players);
-		ongoingRaces.add(race);
+		onAnyRaceStarted(race);
 		return race;
 	}
 
 	public TimeTrialsRace startTimeTrials(ServerPlayer player) {
 		var race = new TimeTrialsRace(this, List.of(player));
-		ongoingRaces.add(race);
+		onAnyRaceStarted(race);
 		return race;
+	}
+
+	private void onAnyRaceStarted(Race race) {
+		ongoingRaces.add(race);
+
+		for (var participant : race.participants) {
+			allParticipants.put(participant.uuid, participant);
+			raceManagerStorage.playersInRace.add(participant.uuid);
+		}
 	}
 
 	public void tick() {
@@ -49,6 +60,11 @@ public class RaceManager {
 
 	public void onRaceEnded(Race race) {
 		ongoingRaces.remove(race);
+
+		for (var participant : race.participants) {
+			allParticipants.remove(participant.uuid);
+			raceManagerStorage.playersInRace.remove(participant.uuid);
+		}
 	}
 
 	public void onPlayerDisconnect(ServerPlayer player) {
@@ -73,7 +89,6 @@ public class RaceManager {
 		participant.onDied();
 	}
 
-	// Respawn handler: re-teleport and re-equip a player who died mid-race
 	public void onPlayerRespawn(ServerPlayer player) {
 		var uuid = player.getUUID();
 		if (!allParticipants.containsKey(uuid)) {
@@ -95,7 +110,7 @@ public class RaceManager {
 		var time = participant.finishTimeMillis;
 		var displayName = participant.displayName;
 
-		timeTrialsStorage.addEntry(uuid, time, displayName);
+		raceManagerStorage.addTimeTrialsEntry(uuid, time, displayName);
 	}
 
 	// --- helpers ---

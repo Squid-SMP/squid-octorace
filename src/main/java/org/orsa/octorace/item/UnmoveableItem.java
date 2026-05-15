@@ -48,12 +48,9 @@ public class UnmoveableItem {
             }
         }
 
-        player.containerMenu.setCarried(ItemStack.EMPTY);
-        player.containerMenu.broadcastFullState();
-
-        var box = player.getBoundingBox().inflate(32);
-        var droppedItems = player.level().getEntitiesOfClass(ItemEntity.class, box, entity -> isItem(entity.getItem()));
-        droppedItems.forEach(ItemEntity::discard);
+//        var box = player.getBoundingBox().inflate(32);
+//        var droppedItems = player.level().getEntitiesOfClass(ItemEntity.class, box, entity -> isItem(entity.getItem()));
+//        droppedItems.forEach(ItemEntity::discard);
 
         giveItem(player);
     }
