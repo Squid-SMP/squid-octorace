@@ -5,6 +5,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.Checkpoint;
@@ -81,6 +83,9 @@ public class Race {
 
         player.setInvulnerable(true);
 
+        var effect = new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, false, false);
+        player.addEffect(effect);
+
         player.setHealth(player.getMaxHealth());
         player.getFoodData().setFoodLevel(20);
         player.getFoodData().setSaturation(5.0f);
@@ -99,9 +104,13 @@ public class Race {
         broadcast("§a§lGO!");
 
         for (var participant : participants) {
+            var player = participant.player;
+
             playSoundFor(participant.player, SoundEvents.NOTE_BLOCK_BELL.value(), 1.0f, 1.5f);
-            RESPAWN_ITEM.unmoveable.addActivePlayer(participant.player);
-            QUIT_ITEM.unmoveable.addActivePlayer(participant.player);
+            RESPAWN_ITEM.unmoveable.addActivePlayer(player);
+            QUIT_ITEM.unmoveable.addActivePlayer(player);
+
+            player.removeEffect(MobEffects.INVISIBILITY);
         }
     }
 
@@ -223,7 +232,7 @@ public class Race {
     }
 
     protected void onAllPlayersFinished() {
-        broadcast("⠀");
+        broadcast(" ");
 
         broadcast("§6§l=== Race Complete ===");
 
@@ -235,7 +244,7 @@ public class Race {
             broadcast(String.format("§e-. §f%s §7(DNF)", disqualified.displayName));
         }
 
-        broadcast("⠀");
+        broadcast(" ");
     }
 
     public void onParticipantDisconnect(RaceParticipant participant) {

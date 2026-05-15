@@ -12,10 +12,14 @@ public class TimeTrialsRace extends Race {
 
     @Override
     protected void onAllPlayersFinished() {
+        broadcast(" ");
+
         broadcast("§6§l=== Time Trials Complete ===");
 
         for (var finisher : finishers) {
             broadcast(String.format("§f%s §7(%.2fs)", finisher.displayName, finisher.finishTimeMillis / 1000.0));
         }
+
+        broadcast(" ");
     }
 }
