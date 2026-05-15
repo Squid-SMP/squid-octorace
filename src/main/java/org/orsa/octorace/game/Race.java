@@ -1,12 +1,10 @@
 package org.orsa.octorace.game;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.Checkpoint;
@@ -15,17 +13,15 @@ import org.orsa.octorace.config.RaceConfig;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
-import static org.orsa.octorace.Octorace.SERVER;
 import static org.orsa.octorace.Octorace.playSoundFor;
 
 public class Race {
     private static final int COUNTDOWN_TICKS = 60; // 3s at 20 tps
 
     public enum Type { VERSUS, TIME_TRIALS }
-    public enum State { COUNTDOWN, ACTIVE }
-    public enum RaceEndReason { ALL_PLAYERS_FINISHED, STOPPED_BY_ADMIN, ALL_PLAYERS_DISCONNECTED }
+    public enum State { COUNTDOWN, ACTIVE, ENDING }
+    public enum RaceEndReason { ALL_PLAYERS_FINISHED, STOPPED_BY_ADMIN, ALL_PLAYERS_DISQUALIFIED}
 
     private final RaceManager manager;
     private final RaceConfig config;
@@ -37,24 +33,29 @@ public class Race {
     public Vec3 startPos;
     public float startYaw;
 
+    private static final int END_DELAY_TICKS = 60; // 3s at 20 tps
+
     private State state = State.COUNTDOWN;
     private int countdownTicksRemaining;
+    private int endingTicksRemaining;
     public long raceStartTimeMillis = 0L;
 
     public List<RaceParticipant> participants;
     public List<RaceParticipant> finishers;
+    public List<RaceParticipant> disqualifieds;
 
     public Race(RaceManager manager, List<ServerPlayer> players) {
         this.manager = manager;
         this.config = manager.getConfig();
         this.checkpoints = config.checkpoints;
 
-        dimension = SERVER.getLevel(config.getDimensionKey());
+        dimension = manager.dimension;
         startPos = config.getStartPosition();
         startYaw = config.getStartYaw();
 
         participants = new ArrayList<>();
         finishers = new ArrayList<>();
+        disqualifieds = new ArrayList<>();
 
         for (var player : players) {
             var participant = new RaceParticipant(this, player);
@@ -106,6 +107,9 @@ public class Race {
         else if (state == State.ACTIVE) {
             tickActive();
         }
+        else if (state == State.ENDING) {
+            tickEnding();
+        }
     }
 
     private void tickCountdown() {
@@ -134,6 +138,21 @@ public class Race {
     private void tickActive() {
         for (var participant : participants) {
             participant.tickActive();
+        }
+    }
+
+    private void tickEnding() {
+        int secondsLeft = (endingTicksRemaining + 19) / 20;
+        int previousSecondsLeft = (endingTicksRemaining + 1 + 19) / 20;
+
+        if (secondsLeft != previousSecondsLeft && secondsLeft > 0) {
+            broadcast(ChatFormatting.GRAY + "Returning to lobby in " + ChatFormatting.YELLOW + secondsLeft + ChatFormatting.GRAY + "...");
+        }
+
+        endingTicksRemaining--;
+
+        if (endingTicksRemaining <= 0) {
+            manager.onRaceEnded(this);
         }
     }
 
@@ -177,12 +196,8 @@ public class Race {
             default:
         }
 
-        for (var participant : participants) {
-            var player = participant.player;
-            player.setInvulnerable(false);
-        }
-
-        manager.onRaceEnded(this);
+        state = State.ENDING;
+        endingTicksRemaining = END_DELAY_TICKS;
     }
 
     protected void onAllPlayersFinished() {
@@ -191,28 +206,34 @@ public class Race {
         for (var finisher : finishers) {
             broadcast(String.format("§e%d. §f%s §7(%.2fs)", finisher.finishPlace, finisher.displayName, finisher.finishTimeMillis / 1000.0));
         }
+
+        for (var disqualified : disqualifieds) {
+            broadcast(String.format("§e-. §f%s §7(DNF)", disqualified.displayName));
+        }
     }
 
     public void onParticipantDisconnect(RaceParticipant participant) {
         broadcast("§7" + participant.player.getName().getString() + " left the race.");
-        participants.remove(participant);
+
+        disqualify(participant);
+    }
+
+    public void disqualify(RaceParticipant participant) {
+        removeParticipant(participant);
         finishers.remove(participant);
+        disqualifieds.add(participant);
+        participant.dnf = true;
+
+        manager.clearPlayer(participant.player);
+        manager.clearPlayer(participant.player);
 
         if (participants.isEmpty()) {
-            endRace(RaceEndReason.ALL_PLAYERS_DISCONNECTED);
+            endRace(RaceEndReason.ALL_PLAYERS_DISQUALIFIED);
         }
     }
 
-    public void onParticipantRespawn(RaceParticipant participant) {
-        if (!participant.needsRespawnTeleport) {
-            return;
-        }
-
-        participant.needsRespawnTeleport = false;
-
-        var respawnPos = participant.respawnPos;
-        participant.player.teleportTo(dimension, respawnPos.x, respawnPos.y, respawnPos.z, new HashSet<>(), participant.respawnYaw, 0, true);
-
-        participant.player.sendSystemMessage(Component.literal("§eYou died! Back to the start."));
+    private void removeParticipant(RaceParticipant participant) {
+        participants.remove(participant);
+        manager.allParticipants.remove(participant.uuid);
     }
 }

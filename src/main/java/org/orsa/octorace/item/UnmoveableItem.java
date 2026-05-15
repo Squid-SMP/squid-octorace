@@ -26,6 +26,8 @@ public class UnmoveableItem {
     }
 
     public void tick() {
+        activePlayers.removeIf(ServerPlayer::isRemoved);
+
         for (var player : activePlayers) {
             enforceSlot(player);
         }

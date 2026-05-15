@@ -1,5 +1,6 @@
 package org.orsa.octorace.game;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.RaceConfig;
@@ -7,6 +8,7 @@ import org.orsa.octorace.config.RaceConfig;
 import java.util.*;
 
 import static org.orsa.octorace.Octorace.LOGGER;
+import static org.orsa.octorace.Octorace.SERVER;
 
 public class RaceManager {
 
@@ -17,8 +19,12 @@ public class RaceManager {
 
 	public RaceManagerStorage raceManagerStorage;
 
+	public ServerLevel dimension;
+
 	public RaceManager(RaceConfig config) {
 		this.config = config;
+
+		dimension = SERVER.getLevel(config.getDimensionKey());
 
 		raceManagerStorage = RaceManagerStorage.get(Octorace.SERVER);
 	}
@@ -48,7 +54,6 @@ public class RaceManager {
 
 		for (var participant : race.participants) {
 			allParticipants.put(participant.uuid, participant);
-			raceManagerStorage.playersInRace.add(participant.uuid);
 		}
 	}
 
@@ -63,7 +68,7 @@ public class RaceManager {
 
 		for (var participant : race.participants) {
 			allParticipants.remove(participant.uuid);
-			raceManagerStorage.playersInRace.remove(participant.uuid);
+			clearPlayer(participant.player);
 		}
 	}
 
@@ -73,7 +78,7 @@ public class RaceManager {
 			return;
 		}
 
-		var participant = allParticipants.remove(uuid);
+		var participant = allParticipants.get(uuid);
 
 		var race = participant.race;
 		race.onParticipantDisconnect(participant);
@@ -89,28 +94,21 @@ public class RaceManager {
 		participant.onDied();
 	}
 
-	public void onPlayerRespawn(ServerPlayer player) {
-		var uuid = player.getUUID();
-		if (!allParticipants.containsKey(uuid)) {
-			return;
-		}
-
-		var participant = allParticipants.get(uuid);
-
-		if (!participant.needsRespawnTeleport) {
-			return;
-		}
-
-		var race = participant.race;
-		race.onParticipantRespawn(participant);
-	}
-
 	public void addTimeTrialsResult(RaceParticipant participant) {
 		var uuid = participant.uuid;
 		var time = participant.finishTimeMillis;
 		var displayName = participant.displayName;
 
 		raceManagerStorage.addTimeTrialsEntry(uuid, time, displayName);
+	}
+
+	public void clearPlayer(ServerPlayer player) {
+		var lobbyPos = config.getLobbyPosition();
+		var lobbyYaw = config.getLobbyYaw();
+
+		player.teleportTo(dimension, lobbyPos.x, lobbyPos.y, lobbyPos.z, new HashSet<>(), lobbyYaw, 0, true);
+		player.getInventory().clearContent();
+		player.setInvulnerable(false);
 	}
 
 	// --- helpers ---

@@ -8,12 +8,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.orsa.octorace.Octorace;
 
-public class PlayerMovementListener {
+public class PlayerEventListener {
 
 	public static void register() {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onDisconnect(handler.player));
-		ServerLivingEntityEvents.AFTER_DEATH.register(PlayerMovementListener::onDeath);
-		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> onRespawn(newPlayer));
+		ServerLivingEntityEvents.AFTER_DEATH.register(PlayerEventListener::onDeath);
 	}
 
 	private static void onDisconnect(ServerPlayer player) {
@@ -32,14 +31,6 @@ public class PlayerMovementListener {
 		if (entity instanceof ServerPlayer sp) {
 			Octorace.RACE_MANAGER.onPlayerDied(sp);
 		}
-	}
-
-	private static void onRespawn(ServerPlayer player) {
-		if (Octorace.RACE_MANAGER == null) {
-			return;
-		}
-
-		Octorace.RACE_MANAGER.onPlayerRespawn(player);
 	}
 
 }

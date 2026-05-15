@@ -20,6 +20,9 @@ public class RaceConfig implements ConfigData {
 	private SerializableVec3 startPosition = null;
 	private float startYaw = 0f;
 
+	private SerializableVec3 lobbyPosition = null;
+	private float lobbyYaw = 0f;
+
 	public List<Checkpoint> checkpoints = new ArrayList<>();
 
 	public String getDimensionId() {
@@ -38,16 +41,27 @@ public class RaceConfig implements ConfigData {
 		return ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, getDimensionIdentifier());
 	}
 
-	public Vec3 getStartPosition() {
-		return startPosition == null ? null : new Vec3(startPosition.x, startPosition.y, startPosition.z);
-	}
-
 	public void setStartPosition(Vec3 pos, float yaw) {
 		this.startPosition = new SerializableVec3(pos.x, pos.y, pos.z);
 		this.startYaw = yaw;
 	}
 
+	public Vec3 getStartPosition() {
+		return startPosition == null ? null : new Vec3(startPosition.x, startPosition.y, startPosition.z);
+	}
+
 	public float getStartYaw() { return startYaw; }
+
+	public void setLobbyPosition(Vec3 pos, float yaw) {
+		this.lobbyPosition = new SerializableVec3(pos.x, pos.y, pos.z);
+		this.lobbyYaw = yaw;
+	}
+
+	public Vec3 getLobbyPosition() {
+		return lobbyPosition == null ? null : new Vec3(lobbyPosition.x, lobbyPosition.y, lobbyPosition.z);
+	}
+
+	public float getLobbyYaw() { return lobbyYaw; }
 
 	public int getCheckpointCount() {
 		return checkpoints.size();

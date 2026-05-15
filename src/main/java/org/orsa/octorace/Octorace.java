@@ -17,15 +17,12 @@ import org.orsa.octorace.command.CustomArgumentTypes;
 import org.orsa.octorace.block.BoostPadBlock;
 import org.orsa.octorace.block.JumpPadBlock;
 import org.orsa.octorace.block.SpeedPadBlock;
-import org.orsa.octorace.command.octorace.CheckpointCommand;
-import org.orsa.octorace.command.octorace.WandCommand;
+import org.orsa.octorace.command.octorace.*;
 import org.orsa.octorace.item.OctoraceTrident;
 import org.orsa.octorace.item.UnmoveableItem;
 import org.orsa.octorace.item.WandItem;
-import org.orsa.octorace.command.octorace.PartyCommand;
-import org.orsa.octorace.command.octorace.StartCommand;
 import org.orsa.octorace.config.RaceConfig;
-import org.orsa.octorace.event.PlayerMovementListener;
+import org.orsa.octorace.event.PlayerEventListener;
 import org.orsa.octorace.game.PartyManager;
 import org.orsa.octorace.game.RaceManager;
 import org.slf4j.Logger;
@@ -70,7 +67,7 @@ public class Octorace implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
         ServerTickEvents.END_SERVER_TICK.register(this::onEndServerTick);
 
-        PlayerMovementListener.register();
+        PlayerEventListener.register();
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> {
             MinecraftAdmiral.builder(dispatcher, registryAccess)
@@ -79,6 +76,8 @@ public class Octorace implements ModInitializer {
                     .addCommandClasses(PartyCommand.class)
                     .addCommandClasses(WandCommand.class)
                     .addCommandClasses(CheckpointCommand.class)
+                    .addCommandClasses(SetStartCommand.class)
+                    .addCommandClasses(SetLobbyCommand.class)
                     .build();
         });
 

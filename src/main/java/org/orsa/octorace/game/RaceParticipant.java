@@ -25,6 +25,7 @@ public class RaceParticipant {
     public boolean finished = false;
     public long finishTimeMillis = 0L;
     public int finishPlace;
+    public boolean dnf = false;
 
     public boolean needsRespawnTeleport = false;
     public Vec3 respawnPos;
