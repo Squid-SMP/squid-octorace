@@ -48,6 +48,7 @@ public class RaceParticipant {
 
     public void tickCountdown() {
         player.setDeltaMovement(0, 0, 0);
+        player.teleportTo(respawnPos.x, respawnPos.y, respawnPos.z);
         player.hurtMarked = true;
     }
 
