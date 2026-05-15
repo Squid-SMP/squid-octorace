@@ -88,11 +88,16 @@ public class PadBlock extends Block implements PolymerTexturedBlock, Manufacture
             var level = player.level();
             var blockStateBelow = level.getBlockState(player.blockPosition().below());
 
+            var wasOnBlock = player.getAttachedOrElse(isOnBlockAttachment, false);
             var isOnBlock = blockStateBelow.is(this);
             player.setAttached(isOnBlockAttachment, isOnBlock);
 
             if (isOnBlock) {
                 playerOn(player);
+            }
+
+            if (!wasOnBlock && isOnBlock && player.getLastClientInput().jump()) {
+                playerJumpedWhileOn(player);
             }
         }
     }
@@ -101,11 +106,6 @@ public class PadBlock extends Block implements PolymerTexturedBlock, Manufacture
 
     protected void playerJumpedWhileOn(ServerPlayer player) {
         playSoundFor(player, SoundEvents.WIND_CHARGE_BURST.value(), 1.0f, 1.0f);
-    }
-
-    protected boolean hasElytra(Player player) {
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        return !chest.isEmpty() && chest.is(Items.ELYTRA);
     }
 
     public void onPlayerJumped(ServerPlayer player) {
