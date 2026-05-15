@@ -9,12 +9,13 @@ import net.minecraft.world.phys.Vec3;
 import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.Checkpoint;
 import org.orsa.octorace.config.RaceConfig;
+import org.orsa.octorace.item.OctoraceTrident;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.orsa.octorace.Octorace.playSoundFor;
+import static org.orsa.octorace.Octorace.*;
 
 public class Race {
     private static final int COUNTDOWN_TICKS = 60; // 3s at 20 tps
@@ -87,6 +88,8 @@ public class Race {
         player.teleportTo(dimension, startPos.x, startPos.y, startPos.z, new HashSet<>(), startYaw, 0, true);
         player.setDeltaMovement(Vec3.ZERO);
         player.sendSystemMessage(Component.literal("§eGet ready..."));
+
+        player.getInventory().clearContent();
     }
 
     private void start() {
@@ -97,6 +100,8 @@ public class Race {
 
         for (var participant : participants) {
             playSoundFor(participant.player, SoundEvents.NOTE_BLOCK_BELL.value(), 1.0f, 1.5f);
+            RESPAWN_ITEM.unmoveable.addActivePlayer(participant.player);
+            QUIT_ITEM.unmoveable.addActivePlayer(participant.player);
         }
     }
 
@@ -182,9 +187,24 @@ public class Race {
 
         manager.addTimeTrialsResult(participant);
 
+        RESPAWN_ITEM.unmoveable.removeActivePlayer(participant.player);
+        OctoraceTrident.unmoveable.removeActivePlayer(participant.player);
+
+        checkRaceEnd();
+    }
+
+    private Boolean checkRaceEnd() {
         if (finishers.size() >= participants.size()) {
             endRace(RaceEndReason.ALL_PLAYERS_FINISHED);
+            return true;
         }
+
+        if (participants.isEmpty()) {
+            endRace(RaceEndReason.ALL_PLAYERS_DISQUALIFIED);
+            return true;
+        }
+
+        return false;
     }
 
     public void endRace(RaceEndReason reason) {
@@ -219,17 +239,16 @@ public class Race {
     }
 
     public void disqualify(RaceParticipant participant) {
-        removeParticipant(participant);
-        finishers.remove(participant);
-        disqualifieds.add(participant);
-        participant.dnf = true;
-
-        manager.clearPlayer(participant.player);
-        manager.clearPlayer(participant.player);
-
-        if (participants.isEmpty()) {
-            endRace(RaceEndReason.ALL_PLAYERS_DISQUALIFIED);
+        if (!participant.finished) {
+            removeParticipant(participant);
+            finishers.remove(participant);
+            disqualifieds.add(participant);
+            participant.dnf = true;
         }
+
+        manager.clearPlayer(participant.player);
+
+        checkRaceEnd();
     }
 
     private void removeParticipant(RaceParticipant participant) {

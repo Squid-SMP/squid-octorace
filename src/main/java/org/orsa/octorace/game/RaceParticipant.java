@@ -1,5 +1,6 @@
 package org.orsa.octorace.game;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -7,6 +8,7 @@ import net.minecraft.world.phys.Vec3;
 import org.orsa.octorace.config.Checkpoint;
 import org.orsa.octorace.item.OctoraceTrident;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 import static org.orsa.octorace.Octorace.playSoundFor;
@@ -27,9 +29,10 @@ public class RaceParticipant {
     public int finishPlace;
     public boolean dnf = false;
 
-    public boolean needsRespawnTeleport = false;
     public Vec3 respawnPos;
     public float respawnYaw;
+
+    private Boolean hasClickedQuitOnce = false;
 
     RaceParticipant(Race race, ServerPlayer player) {
         this.race = race;
@@ -73,6 +76,9 @@ public class RaceParticipant {
         nextCheckpointIdx++;
         boolean isFinal = (nextCheckpointIdx == checkpointsCount);
 
+        respawnPos = lastCheckpoint.center();
+        respawnYaw = Math.round(player.getYRot() / 90f) * 90f;
+
         if (isFinal) {
             finished = true;
             finishTimeMillis = System.currentTimeMillis() - race.raceStartTimeMillis;
@@ -89,12 +95,27 @@ public class RaceParticipant {
         }
     }
 
-    public void onDied() {
-        needsRespawnTeleport = true;
-
+    public void respawnAtLastCheckpoint() {
         if (finished) {
-            respawnPos = player.position();
-            respawnYaw = player.getYRot();
+            return;
         }
+
+        player.teleportTo(race.dimension, respawnPos.x, respawnPos.y, respawnPos.z, new HashSet<>(), respawnYaw, 0, true);
+
+        var message = Component.literal("Respawned at last checkpoint.").withStyle(ChatFormatting.GREEN);
+        player.sendSystemMessage(message);
+
+        playSoundFor(player, SoundEvents.NOTE_BLOCK_BASS.value(), 1.0f, 1.3f);
+    }
+
+    public void quit() {
+        if (!hasClickedQuitOnce) {
+            var message = Component.literal("Press again to confirm quitting the race.").withStyle(ChatFormatting.GRAY);
+            player.sendSystemMessage(message);
+            hasClickedQuitOnce = true;
+            return;
+        }
+
+        race.onParticipantDisconnect(this);
     }
 }

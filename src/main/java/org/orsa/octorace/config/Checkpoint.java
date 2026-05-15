@@ -28,7 +28,7 @@ public class Checkpoint {
 	}
 
 	public Vec3 center() {
-		return new Vec3((minX + maxX) / 2.0, (minY + maxY) / 2.0, (minZ + maxZ) / 2.0);
+		return new Vec3((minX + maxX) / 2.0, (minY + maxY) / 2.0 - 1, (minZ + maxZ) / 2.0);
 	}
 
 	public String describe() {

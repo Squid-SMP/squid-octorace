@@ -3,18 +3,17 @@ package org.orsa.octorace.item;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import org.orsa.octorace.factory.ManufacturedItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UnmoveableComponent {
-    private static final String UNMOVEABLE_KEY = "octorace_trident";
-
     private final String itemKey;
     private final int slot;
     private final ItemStack referenceStack;
 
-    public final List<ServerPlayer> activePlayers = new ArrayList<>();
+    public List<ServerPlayer> activePlayers = new ArrayList<>();
 
     public UnmoveableComponent(String itemKey, int slot, ItemStack referenceStack) {
         this.itemKey = itemKey;
@@ -32,31 +31,37 @@ public class UnmoveableComponent {
 
     public void enforceSlot(ServerPlayer player) {
         var inventory = player.getInventory();
+
+        for (int i = 1; i <= 40; i++) {
+            if (i == slot) {
+                continue;
+            }
+
+            var stack = inventory.getItem(i);
+            if (isItem(stack)) {
+                inventory.setItem(i, ItemStack.EMPTY);
+                return;
+            }
+        }
+
         var stackInSlot = inventory.getItem(slot);
         if (isItem(stackInSlot)) {
             return;
         }
 
-        for (int i = 1; i <= 40; i++) {
-            var stack = inventory.getItem(i);
-            if (isItem(stack)) {
-                var displaced = inventory.getItem(slot).copy();
-                inventory.setItem(slot, inventory.getItem(i).copy());
-                inventory.setItem(i, displaced);
-                return;
-            }
-        }
-
-//        var box = player.getBoundingBox().inflate(32);
-//        var droppedItems = player.level().getEntitiesOfClass(ItemEntity.class, box, entity -> isItem(entity.getItem()));
-//        droppedItems.forEach(ItemEntity::discard);
-
         giveItem(player);
     }
 
     public boolean isItem(ItemStack stack) {
-        if (stack.isEmpty() || stack.getItem() != referenceStack.getItem()) {
+        var item = stack.getItem();
+        var isSameItemAsReference = (item == referenceStack.getItem());
+
+        if (!isSameItemAsReference) {
             return false;
+        }
+
+        if (item instanceof ManufacturedItem<?>) {
+            return true;
         }
 
         var data = stack.get(DataComponents.CUSTOM_DATA);
@@ -88,12 +93,12 @@ public class UnmoveableComponent {
     }
 
     public void addActivePlayer(ServerPlayer player) {
-        removeItem(player);
+        giveItem(player);
         activePlayers.add(player);
     }
 
     public void removeActivePlayer(ServerPlayer player) {
-        removeItem(player);
         activePlayers.remove(player);
+        removeItem(player);
     }
 }

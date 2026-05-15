@@ -12,7 +12,6 @@ public class PlayerEventListener {
 
 	public static void register() {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onDisconnect(handler.player));
-		ServerLivingEntityEvents.AFTER_DEATH.register(PlayerEventListener::onDeath);
 	}
 
 	private static void onDisconnect(ServerPlayer player) {
@@ -22,15 +21,4 @@ public class PlayerEventListener {
 
 		Octorace.RACE_MANAGER.onPlayerDisconnect(player);
 	}
-
-	private static void onDeath(LivingEntity entity, DamageSource source) {
-		if (Octorace.RACE_MANAGER == null) {
-			return;
-		}
-
-		if (entity instanceof ServerPlayer sp) {
-			Octorace.RACE_MANAGER.onPlayerDied(sp);
-		}
-	}
-
 }

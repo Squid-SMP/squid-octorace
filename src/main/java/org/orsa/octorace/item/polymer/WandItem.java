@@ -1,4 +1,4 @@
-package org.orsa.octorace.item;
+package org.orsa.octorace.item.polymer;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
@@ -52,7 +52,7 @@ public class WandItem extends Item implements PolymerItem, ManufacturedItem<Wand
         return item;
     }
 
-    public void init(ItemFactory factory) {
+    public void init(ItemFactory<WandItem> factory) {
         polymerItem = Items.STICK;
 
         AttackBlockCallback.EVENT.register(this::onAttackBlock);

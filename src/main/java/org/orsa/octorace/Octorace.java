@@ -14,13 +14,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import org.orsa.octorace.command.CustomArgumentTypes;
-import org.orsa.octorace.block.BoostPadBlock;
-import org.orsa.octorace.block.JumpPadBlock;
-import org.orsa.octorace.block.SpeedPadBlock;
+import org.orsa.octorace.block.polymer.BoostPadBlock;
+import org.orsa.octorace.block.polymer.JumpPadBlock;
+import org.orsa.octorace.block.polymer.SpeedPadBlock;
 import org.orsa.octorace.command.octorace.*;
 import org.orsa.octorace.item.OctoraceTrident;
 import org.orsa.octorace.item.UnmoveableComponent;
-import org.orsa.octorace.item.WandItem;
+import org.orsa.octorace.item.polymer.QuitItem;
+import org.orsa.octorace.item.polymer.RespawnItem;
+import org.orsa.octorace.item.polymer.WandItem;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.event.PlayerEventListener;
 import org.orsa.octorace.game.PartyManager;
@@ -43,6 +45,8 @@ public class Octorace implements ModInitializer {
     public static MinecraftServer SERVER;
 
     public static WandItem WAND_ITEM;
+    public static RespawnItem RESPAWN_ITEM;
+    public static QuitItem QUIT_ITEM;
 
     public static JumpPadBlock JUMP_PAD_BLOCK;
     public static BoostPadBlock BOOST_PAD_BLOCK;
@@ -56,6 +60,8 @@ public class Octorace implements ModInitializer {
         PolymerResourcePackUtils.markAsRequired();
 
         WAND_ITEM = WandItem.register();
+        RESPAWN_ITEM = RespawnItem.register();
+        QUIT_ITEM = QuitItem.register();
 
         JUMP_PAD_BLOCK = JumpPadBlock.register();
         BOOST_PAD_BLOCK = BoostPadBlock.register();
@@ -78,6 +84,7 @@ public class Octorace implements ModInitializer {
                     .addCommandClasses(CheckpointCommand.class)
                     .addCommandClasses(SetStartCommand.class)
                     .addCommandClasses(SetLobbyCommand.class)
+//                    .addCommandClasses(TestCommand.class)
                     .build();
         });
 
@@ -94,7 +101,7 @@ public class Octorace implements ModInitializer {
 
         OctoraceTrident.init();
 
-        unmoveableComponents = List.of(OctoraceTrident.unmoveable);
+        unmoveableComponents = List.of(OctoraceTrident.unmoveable, RESPAWN_ITEM.unmoveable, QUIT_ITEM.unmoveable);
     }
 
     private void onServerStopping(MinecraftServer server) {
@@ -113,6 +120,8 @@ public class Octorace implements ModInitializer {
         SPEED_PAD_BLOCK.tick();
 
         OctoraceTrident.tick();
+        RESPAWN_ITEM.tick();
+        QUIT_ITEM.tick();
     }
 
     public static Identifier id(String path) {

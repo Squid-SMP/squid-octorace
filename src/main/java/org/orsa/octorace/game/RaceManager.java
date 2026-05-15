@@ -4,11 +4,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.RaceConfig;
+import org.orsa.octorace.item.OctoraceTrident;
 
 import java.util.*;
 
-import static org.orsa.octorace.Octorace.LOGGER;
-import static org.orsa.octorace.Octorace.SERVER;
+import static org.orsa.octorace.Octorace.*;
 
 public class RaceManager {
 
@@ -84,14 +84,14 @@ public class RaceManager {
 		race.onParticipantDisconnect(participant);
 	}
 
-	public void onPlayerDied(ServerPlayer player) {
+	public RaceParticipant getParticipant(ServerPlayer player) {
 		var uuid = player.getUUID();
 		if (!allParticipants.containsKey(uuid)) {
-			return;
+			return null;
 		}
 
 		var participant = allParticipants.get(uuid);
-		participant.onDied();
+		return participant;
 	}
 
 	public void addTimeTrialsResult(RaceParticipant participant) {
@@ -105,6 +105,10 @@ public class RaceManager {
 	public void clearPlayer(ServerPlayer player) {
 		var lobbyPos = config.getLobbyPosition();
 		var lobbyYaw = config.getLobbyYaw();
+
+		RESPAWN_ITEM.unmoveable.removeActivePlayer(player);
+		QUIT_ITEM.unmoveable.removeActivePlayer(player);
+		OctoraceTrident.unmoveable.removeActivePlayer(player);
 
 		player.teleportTo(dimension, lobbyPos.x, lobbyPos.y, lobbyPos.z, new HashSet<>(), lobbyYaw, 0, true);
 		player.getInventory().clearContent();

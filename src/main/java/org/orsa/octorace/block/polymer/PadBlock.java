@@ -1,4 +1,4 @@
-package org.orsa.octorace.block;
+package org.orsa.octorace.block.polymer;
 
 import com.mojang.serialization.MapCodec;
 import eu.pb4.polymer.blocks.api.BlockModelType;

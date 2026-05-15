@@ -4,7 +4,7 @@
   "package": "org.orsa.octorace.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ServerGamePacketListenerImplMixin",
+    "ItemManipulationMixin",
     "PlayerDropMixin",
     "PlayerInputMixin"
   ],

@@ -1,4 +1,4 @@
-package org.orsa.octorace.block;
+package org.orsa.octorace.block.polymer;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -6,8 +6,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.phys.Vec3;
-import org.orsa.octorace.block.PadBlock;
 import org.orsa.octorace.factory.BlockFactory;
 
 public class SpeedPadBlock extends PadBlock {
