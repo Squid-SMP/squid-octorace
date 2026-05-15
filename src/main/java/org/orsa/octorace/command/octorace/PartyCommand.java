@@ -2,6 +2,7 @@ package org.orsa.octorace.command.octorace;
 
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;
+import de.maxhenkel.admiral.annotations.RequiresPermission;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -10,11 +11,12 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 
-import static org.orsa.octorace.Octorace.PARTY_MANAGER;
+import static org.orsa.octorace.Octorace.*;
 
 @Command("octorace")
 public class PartyCommand {
     @Command("party")
+    @RequiresPermission(PLAYER_PERM)
     public int party(CommandContext<CommandSourceStack> ctx) {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
@@ -40,6 +42,7 @@ public class PartyCommand {
     }
 
     @Command({"party","create"})
+    @RequiresPermission(PLAYER_PERM)
     public int partyCreate(CommandContext<CommandSourceStack> ctx) {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
@@ -57,6 +60,7 @@ public class PartyCommand {
     }
 
     @Command({"party","invite"})
+    @RequiresPermission(PLAYER_PERM)
     public int partyInvite(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
@@ -97,6 +101,7 @@ public class PartyCommand {
     }
 
     @Command({"party","join"})
+    @RequiresPermission(PLAYER_PERM)
     public int partyJoin(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
@@ -114,19 +119,44 @@ public class PartyCommand {
     }
 
     @Command({"party","leave"})
+    @RequiresPermission(PLAYER_PERM)
     public int partyLeave(CommandContext<CommandSourceStack> ctx) {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
 
         var party = PARTY_MANAGER.getPlayerParty(sourcePlayer);
         if (party == null) {
-            source.sendFailure(Component.literal("You are not in a party.").withStyle(ChatFormatting.RED));
+            var message = Component.literal("You are not in a party.").withStyle(ChatFormatting.RED);
+            source.sendFailure(message);
+            return 0;
+        }
+
+        if (party.owner == sourcePlayer) {
+            var message = Component.literal("Cannot leave your own party.").withStyle(ChatFormatting.RED);
+            source.sendFailure(message);
             return 0;
         }
 
         party.removePlayer(sourcePlayer);
         var successMessage = Component.literal("Left the party.").withStyle(ChatFormatting.GREEN);
         source.sendSuccess(() -> successMessage, false);
+        return 1;
+    }
+
+    @Command({"party","disband"})
+    @RequiresPermission(PLAYER_PERM)
+    public int partyDisband(CommandContext<CommandSourceStack> ctx) {
+        var source = ctx.getSource();
+        var sourcePlayer = source.getPlayer();
+
+        var party = PARTY_MANAGER.getPlayedOwnerParty(sourcePlayer);
+        if (party == null) {
+            var message = Component.literal("You are not the owner of a party.").withStyle(ChatFormatting.RED);
+            source.sendFailure(message);
+            return 0;
+        }
+
+        party.disband();
         return 1;
     }
 }

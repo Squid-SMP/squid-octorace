@@ -87,8 +87,6 @@ public class RaceParticipant {
             finishPlace = race.finishers.size() + 1;
 
             race.onParticipantFinished(this);
-
-            playSoundFor(player, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
         }
         else {
             player.sendSystemMessage(Component.literal(String.format("§aCheckpoint §e%d§a/§e%d§a passed!", nextCheckpointIdx, checkpointsCount)));
@@ -117,6 +115,10 @@ public class RaceParticipant {
             return;
         }
 
+        forceQuit();
+    }
+
+    public void forceQuit() {
         race.onParticipantDisconnect(this);
     }
 }

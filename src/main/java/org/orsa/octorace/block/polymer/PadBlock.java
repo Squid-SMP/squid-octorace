@@ -100,14 +100,7 @@ public class PadBlock extends Block implements PolymerTexturedBlock, Manufacture
     protected void playerOn(ServerPlayer player) {}
 
     protected void playerJumpedWhileOn(ServerPlayer player) {
-        LOGGER.info("playerJumpedWhileOn");
-
-        var pos = player.position();
-        var level = player.level();
-        level.playSound(null,
-                pos.x + 0.5, pos.y + 0.5, pos.z + 0.5,
-                SoundEvents.WIND_CHARGE_BURST, SoundSource.BLOCKS,
-                0.8f, 1.4f);
+        playSoundFor(player, SoundEvents.WIND_CHARGE_BURST.value(), 1.0f, 1.0f);
     }
 
     protected boolean hasElytra(Player player) {

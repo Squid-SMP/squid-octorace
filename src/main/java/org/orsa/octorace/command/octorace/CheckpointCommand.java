@@ -3,6 +3,7 @@ package org.orsa.octorace.command.octorace;
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;
 import de.maxhenkel.admiral.annotations.Name;
+import de.maxhenkel.admiral.annotations.RequiresPermission;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -13,11 +14,12 @@ import org.orsa.octorace.config.RaceConfig;
 import java.util.List;
 import java.util.Optional;
 
-import static org.orsa.octorace.Octorace.WAND_ITEM;
+import static org.orsa.octorace.Octorace.*;
 
 @Command("octorace")
 public class CheckpointCommand {
     @Command({"checkpoint","clear"})
+    @RequiresPermission(ADMIN_PERM)
     public int checkpointClear(CommandContext<CommandSourceStack> ctx) {
         RaceConfig config = Octorace.RACE_MANAGER.getConfig();
         config.clearCheckpoints();
@@ -28,6 +30,7 @@ public class CheckpointCommand {
     }
 
     @Command({"checkpoint","create"})
+    @RequiresPermission(ADMIN_PERM)
     public int checkpointCreate(CommandContext<CommandSourceStack> ctx, @Name("name") Optional<String> name) {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
@@ -48,6 +51,7 @@ public class CheckpointCommand {
     }
 
     @Command({"checkpoint","remove"})
+    @RequiresPermission(ADMIN_PERM)
     public int checkpointRemove(CommandContext<CommandSourceStack> ctx, @Name("checkpointId") int checkpointId) {
         RaceConfig config = Octorace.RACE_MANAGER.getConfig();
 
@@ -63,6 +67,7 @@ public class CheckpointCommand {
     }
 
     @Command({"checkpoint","list"})
+    @RequiresPermission(ADMIN_PERM)
     public int checkpointList(CommandContext<CommandSourceStack> ctx) {
         RaceConfig config = Octorace.RACE_MANAGER.getConfig();
         List<Checkpoint> checkpoints = config.checkpoints;
@@ -91,6 +96,7 @@ public class CheckpointCommand {
     }
 
     @Command({"checkpoint","edit","toggleTrident"})
+    @RequiresPermission(ADMIN_PERM)
     public int checkpointEditTrident(CommandContext<CommandSourceStack> ctx, @Name("checkpointId") int checkpointId) {
         RaceConfig config = Octorace.RACE_MANAGER.getConfig();
 
@@ -112,6 +118,7 @@ public class CheckpointCommand {
     }
 
     @Command({"checkpoint","edit","changePosition"})
+    @RequiresPermission(ADMIN_PERM)
     public int checkpointEditSwitch(CommandContext<CommandSourceStack> ctx, @Name("checkpointId") int checkpointId, @Name("position") int position) {
         RaceConfig config = Octorace.RACE_MANAGER.getConfig();
         var checkpoints = config.checkpoints;
@@ -140,6 +147,7 @@ public class CheckpointCommand {
     }
 
     @Command({"checkpoint","edit","setName"})
+    @RequiresPermission(ADMIN_PERM)
     public int checkpointSetName(CommandContext<CommandSourceStack> ctx, @Name("checkpointId") int checkpointId, @Name("name") String name) {
         RaceConfig config = Octorace.RACE_MANAGER.getConfig();
 

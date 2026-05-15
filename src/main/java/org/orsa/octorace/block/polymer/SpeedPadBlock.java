@@ -38,4 +38,7 @@ public class SpeedPadBlock extends PadBlock {
 		var effect = new MobEffectInstance(MobEffects.SPEED, durationTicks, amplifier, false, false);
 		player.addEffect(effect);
 	}
+
+	@Override
+	protected void playerJumpedWhileOn(ServerPlayer player) {}
 }

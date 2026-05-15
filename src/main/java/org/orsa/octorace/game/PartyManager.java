@@ -10,7 +10,7 @@ public class PartyManager {
     public Map<String,Party> parties = new HashMap<>();
 
     public void createParty(ServerPlayer owner) {
-        var party = new Party(owner);
+        var party = new Party(this, owner);
         parties.put(owner.getPlainTextName(), party);
     }
 
@@ -25,6 +25,10 @@ public class PartyManager {
             }
         }
         return null;
+    }
+
+    public Party getPlayedOwnerParty(ServerPlayer player) {
+        return parties.get(player.getPlainTextName());
     }
 
     public void createInvite(ServerPlayer inviter, ServerPlayer invited) {

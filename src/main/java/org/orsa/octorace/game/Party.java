@@ -7,12 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.orsa.octorace.Octorace.PARTY_MANAGER;
+
 public class Party {
+    private PartyManager manager;
+
     public ServerPlayer owner;
     public List<ServerPlayer> players;
     public List<ServerPlayer> invites;
 
-    public Party(ServerPlayer owner) {
+    public Party(PartyManager manager, ServerPlayer owner) {
+        this.manager = manager;
         this.owner = owner;
         players = new ArrayList<>();
         players.add(owner);
@@ -40,5 +45,10 @@ public class Party {
         for (var player : players) {
             player.sendSystemMessage(c);
         }
+    }
+
+    public void disband() {
+        broadcast("Party has been disbanded.");
+        manager.parties.remove(this);
     }
 }

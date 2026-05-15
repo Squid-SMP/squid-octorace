@@ -2,16 +2,17 @@ package org.orsa.octorace.command.octorace;
 
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;
+import de.maxhenkel.admiral.annotations.RequiresPermission;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
-import static org.orsa.octorace.Octorace.PARTY_MANAGER;
-import static org.orsa.octorace.Octorace.RACE_MANAGER;
+import static org.orsa.octorace.Octorace.*;
 
 @Command("octorace")
 public class StartCommand {
     @Command({"start","versus"})
+    @RequiresPermission(PLAYER_PERM)
     public int startVersus(CommandContext<CommandSourceStack> ctx) {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
@@ -31,6 +32,7 @@ public class StartCommand {
     }
 
     @Command({"start","timeTrials"})
+    @RequiresPermission(PLAYER_PERM)
     public int startTimeTrials(CommandContext<CommandSourceStack> ctx) {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
@@ -44,7 +46,12 @@ public class StartCommand {
             return 1;
         }
 
-        RACE_MANAGER.startTimeTrials(sourcePlayer);
+        try {
+            RACE_MANAGER.startTimeTrials(sourcePlayer);
+        } catch (Exception e) {
+            LOGGER.info(e.toString());
+            sourcePlayer.sendSystemMessage(Component.literal(e.toString()));
+        }
 
         return 1;
     }

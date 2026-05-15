@@ -11,6 +11,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import org.orsa.octorace.command.CustomArgumentTypes;
@@ -36,8 +38,8 @@ public class Octorace implements ModInitializer {
     public static final String MOD_ID = "octorace";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final String PLAYER_PERM = "octorace.player";
     public static final String ADMIN_PERM = "octorace.admin";
+    public static final String PLAYER_PERM = "octorace.player";
 
     public static RaceManager RACE_MANAGER;
     public static PartyManager PARTY_MANAGER;
@@ -129,8 +131,15 @@ public class Octorace implements ModInitializer {
     }
 
     public static void playSoundFor(ServerPlayer player, SoundEvent sound, float volume, float pitch) {
-        var level = player.level();
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), sound, SoundSource.MASTER, volume, pitch);
+        var packet = new ClientboundSoundEntityPacket(
+            Holder.direct(sound),
+            SoundSource.MASTER,
+            player,
+            volume,
+            pitch,
+            player.level().random.nextLong()
+        );
+        player.connection.send(packet);
     }
 
 }

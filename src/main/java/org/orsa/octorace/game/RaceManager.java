@@ -38,21 +38,56 @@ public class RaceManager {
 			return null;
 		}
 
+		vetPlayers(players, false);
+
 		var race = new Race(this, players);
 		onAnyRaceStarted(race);
+
 		return race;
 	}
 
 	public TimeTrialsRace startTimeTrials(ServerPlayer player) {
-		var race = new TimeTrialsRace(this, List.of(player));
+		var players = List.of(player);
+		players = vetPlayers(players, true);
+
+		if (players.isEmpty()) {
+			return null;
+		}
+
+		var race = new TimeTrialsRace(this, players);
 		onAnyRaceStarted(race);
+
 		return race;
+	}
+
+	private List<ServerPlayer> vetPlayers(List<ServerPlayer> players, boolean fromTimeTrials) {
+		var playersCopy = new ArrayList<>(players);
+		for (var player : players) {
+			var participant = allParticipants.get(player.getUUID());
+
+			if (participant == null) {
+				continue;
+			}
+
+			if (participant.race instanceof TimeTrialsRace && fromTimeTrials) {
+				playersCopy.remove(player);
+				continue;
+			}
+
+			participant.forceQuit();
+		}
+
+		return playersCopy;
 	}
 
 	private void onAnyRaceStarted(Race race) {
 		ongoingRaces.add(race);
 
 		for (var participant : race.participants) {
+			if (allParticipants.containsKey(participant.uuid)) {
+				participant.forceQuit();
+			}
+
 			allParticipants.put(participant.uuid, participant);
 		}
 	}

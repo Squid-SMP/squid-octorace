@@ -2,6 +2,7 @@ package org.orsa.octorace.command.octorace;
 
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;
+import de.maxhenkel.admiral.annotations.RequiresPermission;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -16,6 +17,7 @@ import static org.orsa.octorace.Octorace.*;
 @Command("octorace")
 public class SetStartCommand {
     @Command("setStart")
+    @RequiresPermission(ADMIN_PERM)
     public int setStart(CommandContext<CommandSourceStack> ctx) {
         ServerPlayer player = ctx.getSource().getPlayer();
 

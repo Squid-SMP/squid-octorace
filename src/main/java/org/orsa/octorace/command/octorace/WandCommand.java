@@ -2,6 +2,7 @@ package org.orsa.octorace.command.octorace;
 
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;
+import de.maxhenkel.admiral.annotations.RequiresPermission;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,6 +13,7 @@ import static org.orsa.octorace.Octorace.*;
 @Command("octorace")
 public class WandCommand {
     @Command("wand")
+    @RequiresPermission(ADMIN_PERM)
     public int giveWand(CommandContext<CommandSourceStack> ctx) {
         ServerPlayer player = ctx.getSource().getPlayer();
         ItemStack wand = WAND_ITEM.createWand();

@@ -190,6 +190,8 @@ public class Race {
         RESPAWN_ITEM.unmoveable.removeActivePlayer(participant.player);
         OctoraceTrident.unmoveable.removeActivePlayer(participant.player);
 
+        playSoundFor(participant.player, SoundEvents.ARROW_HIT_PLAYER, 1.0f, 1.0f);
+
         checkRaceEnd();
     }
 
@@ -221,6 +223,8 @@ public class Race {
     }
 
     protected void onAllPlayersFinished() {
+        broadcast("⠀");
+
         broadcast("§6§l=== Race Complete ===");
 
         for (var finisher : finishers) {
@@ -230,6 +234,8 @@ public class Race {
         for (var disqualified : disqualifieds) {
             broadcast(String.format("§e-. §f%s §7(DNF)", disqualified.displayName));
         }
+
+        broadcast("⠀");
     }
 
     public void onParticipantDisconnect(RaceParticipant participant) {
