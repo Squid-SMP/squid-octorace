@@ -15,7 +15,7 @@ public class PlayerDropMixin {
     @Inject(method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;", at = @At("HEAD"), cancellable = true)
     private void onDrop(ItemStack stack, boolean throwRandomly, boolean awardStats, CallbackInfoReturnable<ItemEntity> ci) {
         ServerPlayer self = (ServerPlayer) (Object) this;
-        for (var unmoveableItem : Octorace.unmoveableItems) {
+        for (var unmoveableItem : Octorace.unmoveableComponents) {
             if (!unmoveableItem.activePlayers.contains(self)) {
                 continue;
             }

@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.orsa.octorace.Octorace;
-import org.orsa.octorace.item.UnmoveableItem;
+import org.orsa.octorace.item.UnmoveableComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -24,7 +24,7 @@ public class ServerGamePacketListenerImplMixin {
     private void onContainerClick(ServerboundContainerClickPacket packet, CallbackInfo ci) {
         AbstractContainerMenu menu = player.containerMenu;
 
-        for (var unmoveableItem : Octorace.unmoveableItems) {
+        for (var unmoveableItem : Octorace.unmoveableComponents) {
             if (!unmoveableItem.activePlayers.contains(player)) {
                 continue;
             }
@@ -52,7 +52,7 @@ public class ServerGamePacketListenerImplMixin {
         }
 
         var selectedItem = player.getInventory().getSelectedItem();
-        for (var unmoveableItem : Octorace.unmoveableItems) {
+        for (var unmoveableItem : Octorace.unmoveableComponents) {
             if (unmoveableItem.isItem(selectedItem)) {
                 ci.cancel();
                 player.containerMenu.broadcastFullState();
@@ -62,13 +62,13 @@ public class ServerGamePacketListenerImplMixin {
     }
 
     @Unique
-    private boolean itemInSlot(AbstractContainerMenu menu, int slotIndex, UnmoveableItem unmoveableItem) {
+    private boolean itemInSlot(AbstractContainerMenu menu, int slotIndex, UnmoveableComponent unmoveableComponent) {
         if (slotIndex < 0 || slotIndex >= menu.slots.size()) {
             return false;
         }
 
         var slot = menu.slots.get(slotIndex);
         var item = slot.getItem();
-        return unmoveableItem.isItem(item);
+        return unmoveableComponent.isItem(item);
     }
 }

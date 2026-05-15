@@ -2,15 +2,12 @@ package org.orsa.octorace.item;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.orsa.octorace.Octorace.SERVER;
-
-public class UnmoveableItem {
+public class UnmoveableComponent {
     private static final String UNMOVEABLE_KEY = "octorace_trident";
 
     private final String itemKey;
@@ -19,7 +16,7 @@ public class UnmoveableItem {
 
     public final List<ServerPlayer> activePlayers = new ArrayList<>();
 
-    public UnmoveableItem(String itemKey, int slot, ItemStack referenceStack) {
+    public UnmoveableComponent(String itemKey, int slot, ItemStack referenceStack) {
         this.itemKey = itemKey;
         this.slot = slot;
         this.referenceStack = referenceStack;

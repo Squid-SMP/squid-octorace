@@ -14,8 +14,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
-import java.util.*;
-
 import static org.orsa.octorace.Octorace.SERVER;
 
 public class OctoraceTrident {
@@ -24,13 +22,13 @@ public class OctoraceTrident {
     private static final String TAG_KEY = "octorace_trident";
 
     private static ItemStack itemStack;
-    public static UnmoveableItem unmoveable;
+    public static UnmoveableComponent unmoveable;
 
     private OctoraceTrident() {}
 
     public static void init() {
         itemStack = createStack();
-        unmoveable = new UnmoveableItem(TAG_KEY, TRIDENT_SLOT, itemStack);
+        unmoveable = new UnmoveableComponent(TAG_KEY, TRIDENT_SLOT, itemStack);
     }
 
     public static void tick() {

@@ -19,7 +19,7 @@ import org.orsa.octorace.block.JumpPadBlock;
 import org.orsa.octorace.block.SpeedPadBlock;
 import org.orsa.octorace.command.octorace.*;
 import org.orsa.octorace.item.OctoraceTrident;
-import org.orsa.octorace.item.UnmoveableItem;
+import org.orsa.octorace.item.UnmoveableComponent;
 import org.orsa.octorace.item.WandItem;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.event.PlayerEventListener;
@@ -48,7 +48,7 @@ public class Octorace implements ModInitializer {
     public static BoostPadBlock BOOST_PAD_BLOCK;
     public static SpeedPadBlock SPEED_PAD_BLOCK;
 
-    public static List<UnmoveableItem> unmoveableItems;
+    public static List<UnmoveableComponent> unmoveableComponents;
 
     @Override
     public void onInitialize() {
@@ -94,7 +94,7 @@ public class Octorace implements ModInitializer {
 
         OctoraceTrident.init();
 
-        unmoveableItems = List.of(OctoraceTrident.unmoveable);
+        unmoveableComponents = List.of(OctoraceTrident.unmoveable);
     }
 
     private void onServerStopping(MinecraftServer server) {
