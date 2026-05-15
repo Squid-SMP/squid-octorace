@@ -2,6 +2,7 @@ package org.orsa.octorace.game;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.scores.Team;
 import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.item.OctoraceTrident;
@@ -21,12 +22,22 @@ public class RaceManager {
 
 	public ServerLevel dimension;
 
+	public String teamName = "octorace_race";
+
 	public RaceManager(RaceConfig config) {
 		this.config = config;
 
 		dimension = SERVER.getLevel(config.getDimensionKey());
 
 		raceManagerStorage = RaceManagerStorage.get(Octorace.SERVER);
+
+		var scoreboard = SERVER.getScoreboard();
+		var team = scoreboard.getPlayerTeam(teamName);
+		if (team == null) {
+			team = scoreboard.addPlayerTeam(teamName);
+		}
+
+		team.setCollisionRule(Team.CollisionRule.NEVER);
 	}
 
 	public RaceConfig getConfig() {
@@ -83,7 +94,8 @@ public class RaceManager {
 	private void onAnyRaceStarted(Race race) {
 		ongoingRaces.add(race);
 
-		for (var participant : race.participants) {
+		var participants = new ArrayList<>(race.participants);
+		for (var participant : participants) {
 			if (allParticipants.containsKey(participant.uuid)) {
 				participant.forceQuit();
 			}
@@ -141,6 +153,8 @@ public class RaceManager {
 		var lobbyPos = config.getLobbyPosition();
 		var lobbyYaw = config.getLobbyYaw();
 
+		SERVER.getScoreboard().removePlayerFromTeam(player.getScoreboardName());
+
 		RESPAWN_ITEM.unmoveable.removeActivePlayer(player);
 		QUIT_ITEM.unmoveable.removeActivePlayer(player);
 		OctoraceTrident.unmoveable.removeActivePlayer(player);
@@ -148,6 +162,7 @@ public class RaceManager {
 		player.teleportTo(dimension, lobbyPos.x, lobbyPos.y, lobbyPos.z, new HashSet<>(), lobbyYaw, 0, true);
 		player.getInventory().clearContent();
 		player.setInvulnerable(false);
+		player.removeAllEffects();
 	}
 
 	// --- helpers ---

@@ -83,6 +83,10 @@ public class Race {
 
         player.setInvulnerable(true);
 
+        var scoreboard = dimension.getServer().getScoreboard();
+        var team = scoreboard.getPlayerTeam(manager.teamName);
+        scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
+
         var effect = new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, false, false);
         player.addEffect(effect);
 

@@ -17,7 +17,7 @@ public class StartCommand {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
 
-        var party = PARTY_MANAGER.getPlayerParty(sourcePlayer);
+        var party = PARTY_MANAGER.getPlayedOwnerParty(sourcePlayer);
         if (party == null || party.players.size() == 1) {
             source.sendFailure(Component.literal("Cannot start a versus race alone. Create a party and invite at least one other player.").withStyle(ChatFormatting.RED));
             return 0;
@@ -37,7 +37,7 @@ public class StartCommand {
         var source = ctx.getSource();
         var sourcePlayer = source.getPlayer();
 
-        var party = PARTY_MANAGER.getPlayerParty(sourcePlayer);
+        var party = PARTY_MANAGER.getPlayedOwnerParty(sourcePlayer);
         if (party != null) {
             for (var player : party.players) {
                 RACE_MANAGER.startTimeTrials(player);
@@ -49,7 +49,7 @@ public class StartCommand {
         try {
             RACE_MANAGER.startTimeTrials(sourcePlayer);
         } catch (Exception e) {
-            LOGGER.info(e.toString());
+            LOGGER.error("startTimeTrials failed", e);
             sourcePlayer.sendSystemMessage(Component.literal(e.toString()));
         }
 

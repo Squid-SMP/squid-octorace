@@ -31,6 +31,7 @@ import org.orsa.octorace.game.PartyManager;
 import org.orsa.octorace.game.RaceManager;
 import org.slf4j.Logger;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 
 import java.util.List;
 
@@ -80,6 +81,7 @@ public class Octorace implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, env) -> {
             MinecraftAdmiral.builder(dispatcher, registryAccess)
                     .addArgumentTypes(CustomArgumentTypes::register)
+                    .setPermissionManager((source, permission) -> Permissions.check(source, permission, 2))
                     .addCommandClasses(StartCommand.class)
                     .addCommandClasses(PartyCommand.class)
                     .addCommandClasses(WandCommand.class)

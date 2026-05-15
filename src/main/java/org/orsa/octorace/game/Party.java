@@ -49,6 +49,6 @@ public class Party {
 
     public void disband() {
         broadcast("Party has been disbanded.");
-        manager.parties.remove(this);
+        manager.parties.remove(owner.getPlainTextName());
     }
 }
