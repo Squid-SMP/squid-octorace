@@ -2,15 +2,20 @@ package org.orsa.octorace.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+
+import static org.orsa.octorace.Octorace.SERVER;
 
 public class RaceManagerStorage extends SavedData {
     public List<TimeTrialsData> timeTrialsEntries;
@@ -53,15 +58,28 @@ public class RaceManagerStorage extends SavedData {
         return server.overworld().getDataStorage().computeIfAbsent(TYPE);
     }
 
-    public void addTimeTrialsEntry(UUID uuid, double time, String displayName) {
+    public void addTimeTrialsEntry(RaceParticipant participant, double time, String displayName) {
         var alreadyHas = false;
+        var uuid = participant.uuid;
+        var player = participant.player;
+
+        boolean isWorldRecord = false;
+        var fastestTime = timeTrialsEntries.stream().mapToDouble(entry -> entry.timeMs).min();
+        if (fastestTime.isPresent()) {
+            isWorldRecord = time < fastestTime.getAsDouble();
+        }
 
         for (var entry : timeTrialsEntries) {
             if (entry.uuid.equals(uuid)) {
                 alreadyHas = true;
 
-                if (entry.timeMs < time) {
+                if (time < entry.timeMs) {
                     entry.timeMs = time;
+
+                    if (!isWorldRecord) {
+                        var message = Component.literal("New personal best!").withStyle(ChatFormatting.GREEN);
+                        player.sendSystemMessage(message);
+                    }
                 }
 
                 break;
@@ -73,6 +91,22 @@ public class RaceManagerStorage extends SavedData {
             timeTrialsEntries.add(data);
         }
 
+        if (isWorldRecord) {
+            var message = Component.literal(displayName).withStyle(ChatFormatting.BOLD);
+            var beaten = Component.literal(" has beaten the Octorace world record with a time of ").withStyle(ChatFormatting.GREEN);
+            var timee = Component.literal(String.format("%.2fs", time / 1000.0)).withStyle(ChatFormatting.GOLD);
+            var exclamation = Component.literal("!").withStyle(ChatFormatting.GREEN);
+            message.append(beaten).append(timee).append(exclamation);
+
+            for (var serverPlayer : SERVER.getPlayerList().getPlayers()) {
+                serverPlayer.sendSystemMessage(message);
+            }
+        }
+
         setDirty();
+    }
+
+    private void checkForWorldRecord(RaceParticipant participant, double time, String displayName) {
+        var fastestEntry = timeTrialsEntries.stream().min(Comparator.comparingDouble(entry -> entry.timeMs));
     }
 }

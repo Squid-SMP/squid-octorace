@@ -146,7 +146,7 @@ public class RaceManager {
 		var time = participant.finishTimeMillis;
 		var displayName = participant.displayName;
 
-		raceManagerStorage.addTimeTrialsEntry(uuid, time, displayName);
+		raceManagerStorage.addTimeTrialsEntry(participant, time, displayName);
 	}
 
 	public void clearPlayer(ServerPlayer player) {

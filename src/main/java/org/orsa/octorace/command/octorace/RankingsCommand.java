@@ -8,9 +8,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
+import net.minecraft.server.level.ServerPlayer;
 import org.orsa.octorace.command.PlayerNameArg;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Objects;
 
 import static org.orsa.octorace.Octorace.*;
 
@@ -75,6 +78,28 @@ public class RankingsCommand {
         message.append(Component.literal(String.format(" (%.2fs)", playerEntry.timeMs / 1000.0)).withStyle(ChatFormatting.GRAY));
 
         source.sendSuccess(() -> message, false);
+        return 1;
+    }
+
+    @Command({"rankings", "remove"})
+    @RequiresPermission(ADMIN_PERM)
+    public int rankingsRemove(CommandContext<CommandSourceStack> ctx, @Name("player") ServerPlayer player) {
+        var source = ctx.getSource();
+        var entries = RACE_MANAGER.raceManagerStorage.timeTrialsEntries;
+        var uuid = player.getUUID();
+
+        for (var entry : new ArrayList<>(entries)) {
+            if (Objects.equals(entry.uuid.toString(), uuid.toString())) {
+                entries.remove(entry);
+                var message = Component.literal("Removed ranking of " + player.getPlainTextName() + ".").withStyle(ChatFormatting.GRAY);
+                source.sendSuccess(() -> message, false);
+                return 1;
+            }
+        }
+
+        var message = Component.literal("No ranking for that player.").withStyle(ChatFormatting.GRAY);
+        source.sendSuccess(() -> message, false);
+
         return 1;
     }
 }
