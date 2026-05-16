@@ -1,0 +1,17 @@
+{
+  "boost_pad": {
+    "sounds": [
+      "octorace:boost_pad"
+    ]
+  },
+  "jump_pad": {
+    "sounds": [
+      "octorace:jump_pad"
+    ]
+  },
+  "speed_pad": {
+    "sounds": [
+      "octorace:speed_pad"
+    ]
+  }
+}

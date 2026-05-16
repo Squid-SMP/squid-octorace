@@ -1,11 +1,13 @@
 package org.orsa.octorace.block.polymer;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.phys.Vec3;
 
+import org.orsa.octorace.OctoraceSounds;
 import org.orsa.octorace.factory.BlockFactory;
 
 public class BoostPadBlock extends PadBlock {
@@ -39,5 +41,10 @@ public class BoostPadBlock extends PadBlock {
 		player.setDeltaMovement(look.x * speed, yMomentum, look.z * speed);
 		player.hurtMarked = true;
 		player.resetFallDistance();
+	}
+
+	@Override
+	protected SoundEvent getSoundEffect() {
+		return OctoraceSounds.BOOST_PAD;
 	}
 }

@@ -70,6 +70,8 @@ public class Octorace implements ModInitializer {
         BOOST_PAD_BLOCK = BoostPadBlock.register();
         SPEED_PAD_BLOCK = SpeedPadBlock.register();
 
+        OctoraceSounds.initialize();
+
         AutoConfig.register(RaceConfig.class, GsonConfigSerializer::new);
 
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);

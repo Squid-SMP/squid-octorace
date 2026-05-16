@@ -13,6 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -105,7 +106,11 @@ public class PadBlock extends Block implements PolymerTexturedBlock, Manufacture
     protected void playerOn(ServerPlayer player) {}
 
     protected void playerJumpedWhileOn(ServerPlayer player) {
-        playSoundFor(player, SoundEvents.WIND_CHARGE_BURST.value(), 1.0f, 1.0f);
+        playSoundFor(player, getSoundEffect(), 1.0f, 1.0f);
+    }
+
+    protected SoundEvent getSoundEffect() {
+        return SoundEvents.WIND_CHARGE_BURST.value();
     }
 
     public void onPlayerJumped(ServerPlayer player) {
