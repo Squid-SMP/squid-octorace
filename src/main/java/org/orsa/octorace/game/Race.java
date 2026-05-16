@@ -47,6 +47,8 @@ public class Race {
     public List<RaceParticipant> finishers;
     public List<RaceParticipant> disqualifieds;
 
+    public boolean global;
+
     public Race(RaceManager manager, List<ServerPlayer> players) {
         this.manager = manager;
         this.config = manager.getConfig();
@@ -85,11 +87,8 @@ public class Race {
     private void teleportToStart(RaceParticipant participant) {
         var player = participant.player;
 
+        manager.setCollisionEnabled(player, false);
         player.setInvulnerable(true);
-
-        var scoreboard = dimension.getServer().getScoreboard();
-        var team = scoreboard.getPlayerTeam(manager.teamName);
-        scoreboard.addPlayerToTeam(player.getScoreboardName(), team);
 
         var effect = new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, false, false);
         player.addEffect(effect);
@@ -262,6 +261,10 @@ public class Race {
     }
 
     public void disqualify(RaceParticipant participant) {
+        disqualify(participant, true);
+    }
+
+    public void disqualify(RaceParticipant participant, boolean teleport) {
         if (!participant.finished) {
             removeParticipant(participant);
             finishers.remove(participant);
@@ -269,7 +272,7 @@ public class Race {
             participant.dnf = true;
         }
 
-        manager.clearPlayer(participant.player);
+        manager.clearPlayer(participant.player, teleport);
 
         checkRaceEnd();
     }
@@ -277,5 +280,14 @@ public class Race {
     private void removeParticipant(RaceParticipant participant) {
         participants.remove(participant);
         manager.allParticipants.remove(participant.uuid);
+    }
+
+
+    public void end() {
+        for (var participant : new ArrayList<>(participants)) {
+            if (!participant.finished) {
+                disqualify(participant);
+            }
+        }
     }
 }

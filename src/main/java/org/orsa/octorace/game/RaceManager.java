@@ -2,7 +2,6 @@ package org.orsa.octorace.game;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.scores.Team;
 import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.item.OctoraceTrident;
@@ -22,29 +21,19 @@ public class RaceManager {
 
 	public ServerLevel dimension;
 
-	public String teamName = "octorace_race";
-
 	public RaceManager(RaceConfig config) {
 		this.config = config;
 
 		dimension = SERVER.getLevel(config.getDimensionKey());
 
 		raceManagerStorage = RaceManagerStorage.get(Octorace.SERVER);
-
-		var scoreboard = SERVER.getScoreboard();
-		var team = scoreboard.getPlayerTeam(teamName);
-		if (team == null) {
-			team = scoreboard.addPlayerTeam(teamName);
-		}
-
-		team.setCollisionRule(Team.CollisionRule.NEVER);
 	}
 
 	public RaceConfig getConfig() {
 		return config;
 	}
 
-	public Race startRace(List<ServerPlayer> players) {
+	public Race startRace(List<ServerPlayer> players, boolean global) {
 		if (players.isEmpty()) {
 			return null;
 		}
@@ -53,6 +42,8 @@ public class RaceManager {
 
 		var race = new Race(this, players);
 		onAnyRaceStarted(race);
+
+		race.global = global;
 
 		return race;
 	}
@@ -150,16 +141,30 @@ public class RaceManager {
 	}
 
 	public void clearPlayer(ServerPlayer player) {
-		var lobbyPos = config.getLobbyPosition();
-		var lobbyYaw = config.getLobbyYaw();
+		clearPlayer(player, true);
+	}
 
-		SERVER.getScoreboard().removePlayerFromTeam(player.getScoreboardName());
+	public void setCollisionEnabled(ServerPlayer player, boolean enabled) {
+		try {
+			SERVER.getCommands().performPrefixedCommand(
+				SERVER.createCommandSourceStack(),
+				"tab setcollision " + player.getName().getString() + " " + enabled
+			);
+		} catch (Throwable ignored) {}
+	}
 
+	public void clearPlayer(ServerPlayer player, boolean teleport) {
+		setCollisionEnabled(player, true);
 		RESPAWN_ITEM.unmoveable.removeActivePlayer(player);
 		QUIT_ITEM.unmoveable.removeActivePlayer(player);
 		OctoraceTrident.unmoveable.removeActivePlayer(player);
 
-		player.teleportTo(dimension, lobbyPos.x, lobbyPos.y, lobbyPos.z, new HashSet<>(), lobbyYaw, 0, true);
+		if (teleport) {
+			var lobbyPos = config.getLobbyPosition();
+			var lobbyYaw = config.getLobbyYaw();
+			player.teleportTo(dimension, lobbyPos.x, lobbyPos.y, lobbyPos.z, new HashSet<>(), lobbyYaw, 0, true);
+		}
+
 		player.getInventory().clearContent();
 		player.setInvulnerable(false);
 		player.removeAllEffects();

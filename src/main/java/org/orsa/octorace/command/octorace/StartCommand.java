@@ -30,7 +30,7 @@ public class StartCommand {
         var successMessage = Component.literal("Starting race!").withStyle(ChatFormatting.GREEN);
         source.sendSuccess(() -> successMessage, false);
 
-        RACE_MANAGER.startRace(party.players);
+        RACE_MANAGER.startRace(party.players, false);
 
         return 1;
     }
@@ -82,7 +82,22 @@ public class StartCommand {
         var successMessage = Component.literal("Starting race!").withStyle(ChatFormatting.GREEN);
         source.sendSuccess(() -> successMessage, false);
 
-        RACE_MANAGER.startRace(playersInDimension);
+        RACE_MANAGER.startRace(playersInDimension, true);
+
+        return 1;
+    }
+
+    @Command({"endGlobal"})
+    @RequiresPermission(ADMIN_PERM)
+    public int endGlobal(CommandContext<CommandSourceStack> ctx) {
+        var source = ctx.getSource();
+        var sourcePlayer = source.getPlayer();
+
+        for (var race : new ArrayList<>(RACE_MANAGER.ongoingRaces)) {
+            if (race.global) {
+                race.end();
+            }
+        }
 
         return 1;
     }
