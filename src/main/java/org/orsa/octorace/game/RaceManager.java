@@ -99,6 +99,12 @@ public class RaceManager {
 		for (var race : List.copyOf(ongoingRaces)) {
 			race.tick();
 		}
+
+		for (var player : SERVER.getPlayerList().getPlayers()) {
+			if (player.getTags().contains("octorace") && !allParticipants.containsKey(player.getUUID())) {
+				clearPlayer(player, false);
+			}
+		}
 	}
 
 	public void onRaceEnded(Race race) {
@@ -165,9 +171,9 @@ public class RaceManager {
 			player.teleportTo(dimension, lobbyPos.x, lobbyPos.y, lobbyPos.z, new HashSet<>(), lobbyYaw, 0, true);
 		}
 
-		player.getInventory().clearContent();
 		player.setInvulnerable(false);
 		player.removeAllEffects();
+		player.removeTag("octorace");
 	}
 
 	// --- helpers ---

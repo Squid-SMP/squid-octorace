@@ -90,12 +90,16 @@ public class Race {
         manager.setCollisionEnabled(player, false);
         player.setInvulnerable(true);
 
+        player.removeAllEffects();
+
         var effect = new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, false, false);
         player.addEffect(effect);
 
         player.setHealth(player.getMaxHealth());
         player.getFoodData().setFoodLevel(20);
         player.getFoodData().setSaturation(5.0f);
+
+        player.addTag("octorace");
 
         player.teleportTo(dimension, startPos.x, startPos.y, startPos.z, new HashSet<>(), startYaw, 0, true);
         player.setDeltaMovement(Vec3.ZERO);

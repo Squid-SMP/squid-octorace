@@ -8,6 +8,8 @@ import org.orsa.octorace.factory.ManufacturedItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.orsa.octorace.Octorace.SERVER;
+
 public class UnmoveableComponent {
     private final String itemKey;
     private final int slot;
@@ -26,6 +28,24 @@ public class UnmoveableComponent {
 
         for (var player : activePlayers) {
             enforceSlot(player);
+        }
+
+        for (var player : SERVER.getPlayerList().getPlayers()) {
+            if (!activePlayers.contains(player)) {
+                var inventory = player.getInventory();
+
+                for (int i = 1; i <= 40; i++) {
+                    if (i == slot) {
+                        continue;
+                    }
+
+                    var stack = inventory.getItem(i);
+                    if (isItem(stack)) {
+                        inventory.setItem(i, ItemStack.EMPTY);
+                        return;
+                    }
+                }
+            }
         }
     }
 
