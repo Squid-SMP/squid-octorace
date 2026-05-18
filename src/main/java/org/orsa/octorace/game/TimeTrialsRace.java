@@ -1,5 +1,7 @@
 package org.orsa.octorace.game;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.List;
@@ -12,19 +14,45 @@ public class TimeTrialsRace extends Race {
 
     @Override
     protected void announceNewRace() {
-        broadcast("§7Starting time trials race.");
+        broadcast(Component.literal("Starting time trials race.").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
-    protected void onAllPlayersFinished() {
-        broadcast(" ");
+    protected void sendCountdownStartMessage(RaceParticipant participant) {
+        participant.player.sendSystemMessage(Component.literal("Move to start the timer!").withStyle(ChatFormatting.YELLOW));
+    }
 
-        broadcast("§6§l=== Time Trials Complete ===");
+    @Override
+    protected void tickCountdown() {
+        for (var participant : participants) {
+            var input = participant.player.getLastClientInput();
+            if (input.forward() || input.backward() || input.left() || input.right() || input.jump()) {
+                start();
+                return;
+            }
+        }
+    }
+
+    @Override
+    protected void broadcastParticipantFinish(RaceParticipant participant) {}
+
+    @Override
+    protected void onAllPlayersFinished() {
+        broadcast(Component.literal(" "));
 
         for (var finisher : finishers) {
-            broadcast(String.format("§f%s §7(%.2fs)", finisher.displayName, finisher.finishTimeMillis / 1000.0));
+            var timeLine = Component.empty();
+            timeLine.append(Component.literal(finisher.displayName + " ").withStyle(ChatFormatting.WHITE));
+            timeLine.append(Component.literal(String.format("(%.2fs)", finisher.finishTimeMillis / 1000.0)).withStyle(ChatFormatting.GRAY));
+            broadcast(timeLine);
         }
 
-        broadcast(" ");
+        broadcast(Component.literal(" "));
+    }
+
+    @Override
+    public void onParticipantRestart(RaceParticipant participant) {
+        manager.removeTemporaryEffects(participant.player, true);
+        startCountdown();
     }
 }

@@ -3,6 +3,7 @@ package org.orsa.octorace.command.octorace;
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;
 import de.maxhenkel.admiral.annotations.RequiresPermission;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -28,7 +29,12 @@ public class SetLobbyCommand {
         config.setDimensionId(dimension.toString());
         config.save();
 
-        var message = Component.literal(String.format("§LLobby set: §f%.2f, %.2f, %.2f §7(yaw %.1f) §fin %s", position.x, position.y, position.z, yaw, dimension));
+        var coordText = String.format("%.2f, %.2f, %.2f", position.x, position.y, position.z);
+        var message = Component.empty();
+        message.append(Component.literal("Lobby set: ").withStyle(ChatFormatting.BOLD));
+        message.append(Component.literal(coordText + " ").withStyle(ChatFormatting.WHITE));
+        message.append(Component.literal(String.format("(yaw %.1f) ", yaw)).withStyle(ChatFormatting.GRAY));
+        message.append(Component.literal("in " + dimension).withStyle(ChatFormatting.WHITE));
         ctx.getSource().sendSuccess(() -> message, true);
 
         return 1;

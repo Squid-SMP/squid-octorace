@@ -11,6 +11,7 @@ import org.orsa.octorace.item.OctoraceTrident;
 import java.util.HashSet;
 import java.util.UUID;
 
+import static org.orsa.octorace.Octorace.LOGGER;
 import static org.orsa.octorace.Octorace.playSoundFor;
 
 public class RaceParticipant {
@@ -29,10 +30,13 @@ public class RaceParticipant {
     public int finishPlace;
     public boolean dnf = false;
 
+    public long lastCheckpointTimeMillis = 0L;
+
     public Vec3 respawnPos;
     public float respawnYaw;
 
     private Boolean hasClickedQuitOnce = false;
+    private Boolean hasClickedRestartOnce = false;
 
     RaceParticipant(Race race, ServerPlayer player) {
         this.race = race;
@@ -80,6 +84,19 @@ public class RaceParticipant {
         respawnPos = lastCheckpoint.center();
         respawnYaw = Math.round(player.getYRot() / 90f) * 90f;
 
+        long now = System.currentTimeMillis();
+        long splitMillis = (lastCheckpointTimeMillis == 0L) ? (now - race.raceStartTimeMillis) : (now - lastCheckpointTimeMillis);
+        long totalMillis = now - race.raceStartTimeMillis;
+        lastCheckpointTimeMillis = now;
+
+        var checkpointMessage = Component.empty();
+        checkpointMessage.append(Component.literal("Checkpoint ").withStyle(ChatFormatting.GREEN));
+        checkpointMessage.append(Component.literal(nextCheckpointIdx + "/" + checkpointsCount).withStyle(ChatFormatting.YELLOW));
+        checkpointMessage.append(Component.literal(String.format("  +%.2fs", splitMillis / 1000.0)).withStyle(ChatFormatting.WHITE));
+        checkpointMessage.append(Component.literal(String.format("  (%.2fs)", totalMillis / 1000.0)).withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(checkpointMessage);
+        playSoundFor(player, SoundEvents.EXPERIENCE_ORB_PICKUP, 0.6f, 1.5f);
+
         if (isFinal) {
             finished = true;
             finishTimeMillis = System.currentTimeMillis() - race.raceStartTimeMillis;
@@ -87,10 +104,6 @@ public class RaceParticipant {
             finishPlace = race.finishers.size() + 1;
 
             race.onParticipantFinished(this);
-        }
-        else {
-            player.sendSystemMessage(Component.literal(String.format("§aCheckpoint §e%d§a/§e%d§a passed!", nextCheckpointIdx, checkpointsCount)));
-            playSoundFor(player, SoundEvents.EXPERIENCE_ORB_PICKUP, 0.6f, 1.5f);
         }
     }
 
@@ -109,7 +122,7 @@ public class RaceParticipant {
 
     public void quit() {
         if (!hasClickedQuitOnce) {
-            var message = Component.literal("Press again to confirm quitting the race.").withStyle(ChatFormatting.GRAY);
+            var message = Component.literal("Press again to quit the race.").withStyle(ChatFormatting.GRAY);
             player.sendSystemMessage(message);
             hasClickedQuitOnce = true;
             return;
@@ -118,7 +131,33 @@ public class RaceParticipant {
         forceQuit();
     }
 
+    public void restart() {
+        if (!hasClickedRestartOnce) {
+            var message = Component.literal("Press again to restart from the beginning.").withStyle(ChatFormatting.GRAY);
+            player.sendSystemMessage(message);
+            hasClickedRestartOnce = true;
+            return;
+        }
+
+        forceRestart();
+    }
+
     public void forceQuit() {
         race.onParticipantDisconnect(this);
+    }
+
+    public void forceRestart() {
+        var message = Component.literal("Restarted from the beginning.").withStyle(ChatFormatting.GRAY);
+        player.sendSystemMessage(message);
+
+        hasClickedQuitOnce = false;
+        hasClickedRestartOnce = false;
+        nextCheckpointIdx = 0;
+        lastCheckpointTimeMillis = 0L;
+
+        player.setDeltaMovement(0, 0, 0);
+        player.hurtMarked = true;
+
+        race.onParticipantRestart(this);
     }
 }

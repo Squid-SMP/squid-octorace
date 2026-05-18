@@ -54,8 +54,6 @@ public class WandItem extends Item implements PolymerItem, ManufacturedItem<Wand
 
     public void init(ItemFactory<WandItem> factory) {
         polymerItem = Items.STICK;
-
-        AttackBlockCallback.EVENT.register(this::onAttackBlock);
     }
 
     @Override
@@ -72,11 +70,7 @@ public class WandItem extends Item implements PolymerItem, ManufacturedItem<Wand
         return trySetPos(2, player, world, blockPos);
     }
 
-    private InteractionResult onAttackBlock(Player player, Level world, InteractionHand hand, BlockPos blockPos, Direction direction) {
-        var itemInHand = player.getItemInHand(hand).getItem();
-        if (!(itemInHand instanceof WandItem)) {
-            return InteractionResult.PASS;
-        }
+    public InteractionResult onAttackBlock(Player player, Level world, InteractionHand hand, BlockPos blockPos, Direction direction) {
         return trySetPos(1, player, world, blockPos);
     }
 

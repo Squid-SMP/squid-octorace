@@ -6,8 +6,10 @@
   "mixins": [
     "ItemManipulationMixin",
     "PlayerChangeDimensionMixin",
+    "PlayerCollisionMixin",
     "PlayerDropMixin",
     "PlayerInputMixin",
+    "PlayerSwingMixin",
     "SlotPickupMixin"
   ],
   "client": [

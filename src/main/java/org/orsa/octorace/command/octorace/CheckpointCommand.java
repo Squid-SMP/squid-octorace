@@ -44,7 +44,7 @@ public class CheckpointCommand {
             return 0;
         }
 
-        var message = Component.literal("§aAdded checkpoint #" + config.checkpoints.size() + ": " + checkpoint.describe());
+        var message = Component.literal("Added checkpoint #" + config.checkpoints.size() + ": " + checkpoint.describe()).withStyle(ChatFormatting.GREEN);
         ctx.getSource().sendSuccess(() -> message, true);
 
         return 1;

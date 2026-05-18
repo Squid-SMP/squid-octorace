@@ -3,6 +3,7 @@ package org.orsa.octorace.command.octorace;
 import com.mojang.brigadier.context.CommandContext;
 import de.maxhenkel.admiral.annotations.Command;
 import de.maxhenkel.admiral.annotations.RequiresPermission;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +23,10 @@ public class WandCommand {
             player.drop(wand, false);
         }
 
-        ctx.getSource().sendSuccess(() -> Component.literal("§aOctorace Wand given. §7Left-click to set corner 1, right-click to set corner 2."), false);
+        var wandMessage = Component.empty();
+        wandMessage.append(Component.literal("Octorace Wand given. ").withStyle(ChatFormatting.GREEN));
+        wandMessage.append(Component.literal("Left-click to set corner 1, right-click to set corner 2.").withStyle(ChatFormatting.GRAY));
+        ctx.getSource().sendSuccess(() -> wandMessage, false);
         return 1;
     }
 }

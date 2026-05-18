@@ -6,8 +6,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.util.Unit;
@@ -61,13 +64,20 @@ public class OctoraceTrident {
     public static void togglePlayer(ServerPlayer player) {
         if (unmoveable.playerHasItem(player)) {
             unmoveable.removeActivePlayer(player);
-            player.removeEffect(MobEffects.DOLPHINS_GRACE);
+            var waterAttr = player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY);
+            if (waterAttr != null) {
+                waterAttr.removeModifier(Identifier.parse("octorace:depth_strider"));
+            }
             player.removeEffect(MobEffects.WATER_BREATHING);
         }
         else {
             unmoveable.addActivePlayer(player);
-            var effect1 = new MobEffectInstance(MobEffects.DOLPHINS_GRACE, MobEffectInstance.INFINITE_DURATION, 1, false, false);
-            player.addEffect(effect1);
+            var waterAttr = player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY);
+            if (waterAttr != null) {
+                waterAttr.addOrUpdateTransientModifier(new AttributeModifier(
+                    Identifier.parse("octorace:depth_strider"), 1.0, AttributeModifier.Operation.ADD_VALUE
+                ));
+            }
 
             var effect2 = new MobEffectInstance(MobEffects.WATER_BREATHING, MobEffectInstance.INFINITE_DURATION, 0, false, false);
             player.addEffect(effect2);

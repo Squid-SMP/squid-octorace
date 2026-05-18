@@ -95,7 +95,7 @@ public class StartCommand {
 
         for (var race : new ArrayList<>(RACE_MANAGER.ongoingRaces)) {
             if (race.global) {
-                race.end();
+                race.end(true);
             }
         }
 

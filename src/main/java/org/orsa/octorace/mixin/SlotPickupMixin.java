@@ -15,9 +15,13 @@ public class SlotPickupMixin {
 
     @Inject(method = "mayPickup", at = @At("HEAD"), cancellable = true)
     private void preventUnmoveablePickup(Player player, CallbackInfoReturnable<Boolean> cir) {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp)) {
+            return;
+        }
         var rm = Octorace.RACE_MANAGER;
-        if (rm == null) return;
+        if (rm == null) {
+            return;
+        }
         Slot slot = (Slot) (Object) this;
         ItemStack item = slot.getItem();
         for (var unmoveable : Octorace.unmoveableComponents) {

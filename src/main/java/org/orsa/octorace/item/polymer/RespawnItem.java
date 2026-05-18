@@ -83,4 +83,13 @@ public class RespawnItem extends Item implements PolymerItem, ManufacturedItem<R
 
         return InteractionResult.SUCCESS;
     }
+
+    public void onAttack(ServerPlayer player) {
+        var participant = RACE_MANAGER.getParticipant(player);
+        if (participant == null) {
+            return;
+        }
+
+        participant.restart();
+    }
 }

@@ -8,7 +8,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
-import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.Checkpoint;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.item.OctoraceTrident;
@@ -26,8 +25,8 @@ public class Race {
     public enum State { COUNTDOWN, ACTIVE, ENDING }
     public enum RaceEndReason { ALL_PLAYERS_FINISHED, STOPPED_BY_ADMIN, ALL_PLAYERS_DISQUALIFIED}
 
-    private final RaceManager manager;
-    private final RaceConfig config;
+    protected final RaceManager manager;
+    public final RaceConfig config;
     private final List<Checkpoint> checkpoints;
 
     public Type type;
@@ -73,18 +72,24 @@ public class Race {
     }
 
     protected void announceNewRace() {
-        broadcast("§7Starting versus race.");
+        broadcast(Component.literal("Starting versus race.").withStyle(ChatFormatting.GRAY));
     }
 
-    private void startCountdown() {
+    protected void startCountdown() {
+        state = State.COUNTDOWN;
         countdownTicksRemaining = COUNTDOWN_TICKS;
 
         for (var participant : participants) {
+            sendCountdownStartMessage(participant);
             teleportToStart(participant);
         }
     }
 
-    private void teleportToStart(RaceParticipant participant) {
+    protected void sendCountdownStartMessage(RaceParticipant participant) {
+        participant.player.sendSystemMessage(Component.literal("Get ready...").withStyle(ChatFormatting.YELLOW));
+    }
+
+    protected void teleportToStart(RaceParticipant participant) {
         var player = participant.player;
 
         manager.setCollisionEnabled(player, false);
@@ -103,16 +108,15 @@ public class Race {
 
         player.teleportTo(dimension, startPos.x, startPos.y, startPos.z, new HashSet<>(), startYaw, 0, true);
         player.setDeltaMovement(Vec3.ZERO);
-        player.sendSystemMessage(Component.literal("§eGet ready..."));
 
         player.getInventory().clearContent();
     }
 
-    private void start() {
+    protected void start() {
         state = State.ACTIVE;
         raceStartTimeMillis = System.currentTimeMillis();
 
-        broadcast("§a§lGO!");
+        broadcast(Component.literal("GO!").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
 
         for (var participant : participants) {
             var player = participant.player;
@@ -137,13 +141,13 @@ public class Race {
         }
     }
 
-    private void tickCountdown() {
+    protected void tickCountdown() {
         // Show the countdown number once per second
         int secondsLeft = (countdownTicksRemaining + 19) / 20;
         int prevSecondsLeft = (countdownTicksRemaining + 1 + 19) / 20;
 
         if (secondsLeft != prevSecondsLeft && secondsLeft > 0) {
-            broadcast("§e§l" + secondsLeft + "...");
+            broadcast(Component.literal(secondsLeft + "...").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
 
             for (var participant : participants) {
                 playSoundFor(participant.player, SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
@@ -160,7 +164,7 @@ public class Race {
         }
     }
 
-    private void tickActive() {
+    protected void tickActive() {
         for (var participant : participants) {
             participant.tickActive();
         }
@@ -171,7 +175,11 @@ public class Race {
         int previousSecondsLeft = (endingTicksRemaining + 1 + 19) / 20;
 
         if (secondsLeft != previousSecondsLeft && secondsLeft > 0) {
-            broadcast(ChatFormatting.GRAY + "Returning to lobby in " + ChatFormatting.YELLOW + secondsLeft + ChatFormatting.GRAY + "...");
+            var lobbyMessage = Component.empty();
+            lobbyMessage.append(Component.literal("Returning to lobby in ").withStyle(ChatFormatting.GRAY));
+            lobbyMessage.append(Component.literal(String.valueOf(secondsLeft)).withStyle(ChatFormatting.YELLOW));
+            lobbyMessage.append(Component.literal("...").withStyle(ChatFormatting.GRAY));
+            broadcast(lobbyMessage);
         }
 
         endingTicksRemaining--;
@@ -189,21 +197,16 @@ public class Race {
         return checkpoints.size();
     }
 
-    protected void broadcast(String msg) {
-        Component c = Component.literal(msg);
+    protected void broadcast(Component message) {
         for (var participant : participants) {
-            participant.player.sendSystemMessage(c);
+            participant.player.sendSystemMessage(message);
         }
     }
 
     public void onParticipantFinished(RaceParticipant participant) {
         finishers.add(participant);
 
-        String suffix = manager.ordinalSuffix(participant.finishPlace);
-        double seconds = participant.finishTimeMillis / 1000.0;
-
-        var message = String.format("§6§l%s§r§6 finished in §e%d%s§6 place! §7(%.2fs)", participant.displayName, participant.finishPlace, suffix, seconds);
-        broadcast(message);
+        broadcastParticipantFinish(participant);
 
         manager.addTimeTrialsResult(participant);
 
@@ -213,6 +216,17 @@ public class Race {
         playSoundFor(participant.player, SoundEvents.ARROW_HIT_PLAYER, 1.0f, 1.0f);
 
         checkRaceEnd();
+    }
+
+    protected void broadcastParticipantFinish(RaceParticipant participant) {
+        String suffix = manager.ordinalSuffix(participant.finishPlace);
+        double seconds = participant.finishTimeMillis / 1000.0;
+
+        var finishedMessage = Component.empty();
+        finishedMessage.append(Component.literal(participant.displayName).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+        finishedMessage.append(Component.literal(String.format(" finished in %d%s place! ", participant.finishPlace, suffix)).withStyle(ChatFormatting.GOLD));
+        finishedMessage.append(Component.literal(String.format("(%.2fs)", seconds)).withStyle(ChatFormatting.GRAY));
+        broadcast(finishedMessage);
     }
 
     private Boolean checkRaceEnd() {
@@ -243,23 +257,32 @@ public class Race {
     }
 
     protected void onAllPlayersFinished() {
-        broadcast(" ");
+        broadcast(Component.literal(" "));
 
-        broadcast("§6§l=== Race Complete ===");
+        broadcast(Component.literal("=== Race Complete ===").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
         for (var finisher : finishers) {
-            broadcast(String.format("§e%d. §f%s §7(%.2fs)", finisher.finishPlace, finisher.displayName, finisher.finishTimeMillis / 1000.0));
+            var finisherLine = Component.empty();
+            finisherLine.append(Component.literal(finisher.finishPlace + ". ").withStyle(ChatFormatting.YELLOW));
+            finisherLine.append(Component.literal(finisher.displayName + " ").withStyle(ChatFormatting.WHITE));
+            finisherLine.append(Component.literal(String.format("(%.2fs)", finisher.finishTimeMillis / 1000.0)).withStyle(ChatFormatting.GRAY));
+            broadcast(finisherLine);
         }
 
         for (var disqualified : disqualifieds) {
-            broadcast(String.format("§e-. §f%s §7(DNF)", disqualified.displayName));
+            var dnfLine = Component.empty();
+            dnfLine.append(Component.literal("-. ").withStyle(ChatFormatting.YELLOW));
+            dnfLine.append(Component.literal(disqualified.displayName + " ").withStyle(ChatFormatting.WHITE));
+            dnfLine.append(Component.literal("(DNF)").withStyle(ChatFormatting.GRAY));
+            broadcast(dnfLine);
         }
 
-        broadcast(" ");
+        broadcast(Component.literal(" "));
     }
 
     public void onParticipantDisconnect(RaceParticipant participant) {
-        broadcast("§7" + participant.player.getName().getString() + " left the race.");
+        var playerName = participant.player.getName().getString();
+        broadcast(Component.literal(playerName + " left the race.").withStyle(ChatFormatting.GRAY));
 
         disqualify(participant);
     }
@@ -286,12 +309,16 @@ public class Race {
         manager.allParticipants.remove(participant.uuid);
     }
 
-
-    public void end() {
+    public void end(boolean teleport) {
         for (var participant : new ArrayList<>(participants)) {
             if (!participant.finished) {
-                disqualify(participant);
+                disqualify(participant, teleport);
             }
         }
+    }
+
+    public void onParticipantRestart(RaceParticipant participant) {
+        manager.removeTemporaryEffects(participant.player, false);
+        teleportToStart(participant);
     }
 }

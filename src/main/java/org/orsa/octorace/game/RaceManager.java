@@ -1,7 +1,9 @@
 package org.orsa.octorace.game;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.orsa.octorace.Octorace;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.item.OctoraceTrident;
@@ -161,9 +163,8 @@ public class RaceManager {
 
 	public void clearPlayer(ServerPlayer player, boolean teleport) {
 		setCollisionEnabled(player, true);
-		RESPAWN_ITEM.unmoveable.removeActivePlayer(player);
-		QUIT_ITEM.unmoveable.removeActivePlayer(player);
-		OctoraceTrident.unmoveable.removeActivePlayer(player);
+
+		removeTemporaryEffects(player, true);
 
 		if (teleport) {
 			var lobbyPos = config.getLobbyPosition();
@@ -172,14 +173,41 @@ public class RaceManager {
 		}
 
 		player.setInvulnerable(false);
-		player.removeAllEffects();
+		removeSoulSpeedModifier(player);
 		player.removeTag("octorace");
+	}
+
+	public void removeTemporaryEffects(ServerPlayer player, boolean respawnAndQuit) {
+		OctoraceTrident.unmoveable.removeActivePlayer(player);
+
+		if (respawnAndQuit) {
+			RESPAWN_ITEM.unmoveable.removeActivePlayer(player);
+			QUIT_ITEM.unmoveable.removeActivePlayer(player);
+		}
+
+		player.removeAllEffects();
+
+		var waterAttr = player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY);
+		if (waterAttr != null) {
+			waterAttr.removeModifier(Identifier.parse("octorace:depth_strider"));
+		}
 	}
 
 	// --- helpers ---
 
+	private void removeSoulSpeedModifier(ServerPlayer player) {
+		var attr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+		if (attr == null) {
+			return;
+		}
+		var modifierId = Identifier.parse("minecraft:enchantment.soul_speed");
+		attr.removeModifier(modifierId);
+	}
+
 	public String ordinalSuffix(int n) {
-		if (n % 100 >= 11 && n % 100 <= 13) return "th";
+		if (n % 100 >= 11 && n % 100 <= 13) {
+			return "th";
+		}
 		return switch (n % 10) {
 			case 1 -> "st";
 			case 2 -> "nd";
