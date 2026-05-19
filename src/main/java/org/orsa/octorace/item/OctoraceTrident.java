@@ -68,6 +68,7 @@ public class OctoraceTrident {
             if (waterAttr != null) {
                 waterAttr.removeModifier(Identifier.parse("octorace:depth_strider"));
             }
+            player.removeEffect(MobEffects.DOLPHINS_GRACE);
             player.removeEffect(MobEffects.WATER_BREATHING);
         }
         else {
@@ -79,6 +80,8 @@ public class OctoraceTrident {
                 ));
             }
 
+            var effect1 = new MobEffectInstance(MobEffects.DOLPHINS_GRACE, MobEffectInstance.INFINITE_DURATION, 1, false, false);
+            player.addEffect(effect1);
             var effect2 = new MobEffectInstance(MobEffects.WATER_BREATHING, MobEffectInstance.INFINITE_DURATION, 0, false, false);
             player.addEffect(effect2);
         }

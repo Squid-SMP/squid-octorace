@@ -25,7 +25,9 @@ import org.orsa.octorace.item.UnmoveableComponent;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.orsa.octorace.Octorace.*;
@@ -33,6 +35,7 @@ import static org.orsa.octorace.Octorace.*;
 public class RespawnItem extends Item implements PolymerItem, ManufacturedItem<RespawnItem> {
 
     public UnmoveableComponent unmoveable;
+    public final Set<UUID> pendingRightClickSwing = new HashSet<>();
 
     Item polymerItem;
 
@@ -79,6 +82,7 @@ public class RespawnItem extends Item implements PolymerItem, ManufacturedItem<R
             return InteractionResult.SUCCESS;
         }
 
+        pendingRightClickSwing.add(serverPlayer.getUUID());
         participant.respawnAtLastCheckpoint();
 
         return InteractionResult.SUCCESS;
