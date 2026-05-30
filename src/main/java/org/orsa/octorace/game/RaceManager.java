@@ -45,6 +45,10 @@ public class RaceManager {
 		var race = new Race(this, players);
 		onAnyRaceStarted(race);
 
+		if (race.aborted) {
+			return null;
+		}
+
 		race.global = global;
 
 		return race;
@@ -60,6 +64,10 @@ public class RaceManager {
 
 		var race = new TimeTrialsRace(this, players);
 		onAnyRaceStarted(race);
+
+		if (race.aborted) {
+			return null;
+		}
 
 		return race;
 	}
@@ -85,6 +93,10 @@ public class RaceManager {
 	}
 
 	private void onAnyRaceStarted(Race race) {
+		if (race.aborted) {
+			return;
+		}
+
 		ongoingRaces.add(race);
 
 		var participants = new ArrayList<>(race.participants);

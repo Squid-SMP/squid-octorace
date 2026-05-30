@@ -75,13 +75,30 @@ public class Race {
         broadcast(Component.literal("Starting versus race.").withStyle(ChatFormatting.GRAY));
     }
 
+    protected boolean aborted = false;
+
     protected void startCountdown() {
         state = State.COUNTDOWN;
         countdownTicksRemaining = COUNTDOWN_TICKS;
 
+        boolean anyFailed = false;
         for (var participant : participants) {
             sendCountdownStartMessage(participant);
-            teleportToStart(participant);
+            if (!teleportToStart(participant)) {
+                anyFailed = true;
+            }
+        }
+
+        if (anyFailed) {
+            abortStart();
+        }
+    }
+
+    private void abortStart() {
+        aborted = true;
+        broadcast(Component.literal("Race cancelled: a player could not be teleported.").withStyle(ChatFormatting.RED));
+        for (var participant : participants) {
+            manager.clearPlayer(participant.player);
         }
     }
 
@@ -89,7 +106,7 @@ public class Race {
         participant.player.sendSystemMessage(Component.literal("Get ready...").withStyle(ChatFormatting.YELLOW));
     }
 
-    protected void teleportToStart(RaceParticipant participant) {
+    protected boolean teleportToStart(RaceParticipant participant) {
         var player = participant.player;
 
         manager.setCollisionEnabled(player, false);
@@ -109,7 +126,12 @@ public class Race {
         player.teleportTo(dimension, startPos.x, startPos.y, startPos.z, new HashSet<>(), startYaw, 0, true);
         player.setDeltaMovement(Vec3.ZERO);
 
+        if (!player.level().dimension().equals(dimension.dimension())) {
+            return false;
+        }
+
         player.getInventory().clearContent();
+        return true;
     }
 
     protected void start() {

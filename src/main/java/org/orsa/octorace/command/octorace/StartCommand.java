@@ -27,6 +27,13 @@ public class StartCommand {
             return 0;
         }
 
+        for (var player : party.players) {
+            if (player.level() != RACE_MANAGER.dimension) {
+                source.sendFailure(Component.literal("All party members must be in the race dimension to start.").withStyle(ChatFormatting.RED));
+                return 0;
+            }
+        }
+
         var successMessage = Component.literal("Starting race!").withStyle(ChatFormatting.GREEN);
         source.sendSuccess(() -> successMessage, false);
 
@@ -44,10 +51,19 @@ public class StartCommand {
         var party = PARTY_MANAGER.getPlayedOwnerParty(sourcePlayer);
         if (party != null) {
             for (var player : party.players) {
+                if (player.level() != RACE_MANAGER.dimension) {
+                    player.sendSystemMessage(Component.literal("You must be in the race dimension to start a time trial.").withStyle(ChatFormatting.RED));
+                    continue;
+                }
                 RACE_MANAGER.startTimeTrials(player);
             }
 
             return 1;
+        }
+
+        if (sourcePlayer.level() != RACE_MANAGER.dimension) {
+            source.sendFailure(Component.literal("You must be in the race dimension to start a time trial.").withStyle(ChatFormatting.RED));
+            return 0;
         }
 
         try {
