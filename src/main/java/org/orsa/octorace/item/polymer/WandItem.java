@@ -21,7 +21,7 @@ import org.orsa.octorace.config.Checkpoint;
 import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.factory.ItemFactory;
 import org.orsa.octorace.factory.ManufacturedItem;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.HashMap;
 import java.util.Map;

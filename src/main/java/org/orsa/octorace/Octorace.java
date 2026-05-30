@@ -142,7 +142,7 @@ public class Octorace implements ModInitializer {
             player,
             volume,
             pitch,
-            player.level().random.nextLong()
+            player.level().getRandom().nextLong()
         );
         player.connection.send(packet);
     }

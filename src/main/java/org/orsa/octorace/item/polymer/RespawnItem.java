@@ -22,7 +22,7 @@ import org.orsa.octorace.config.RaceConfig;
 import org.orsa.octorace.factory.ItemFactory;
 import org.orsa.octorace.factory.ManufacturedItem;
 import org.orsa.octorace.item.UnmoveableComponent;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,8 +58,7 @@ public class RespawnItem extends Item implements PolymerItem, ManufacturedItem<R
     public void init(ItemFactory<RespawnItem> factory) {
         polymerItem = Items.ECHO_SHARD;
 
-        var itemStack = new ItemStack(this);
-        unmoveable = new UnmoveableComponent("respawn", 7, itemStack);
+        unmoveable = new UnmoveableComponent("respawn", 7, this);
     }
 
     public void tick() {

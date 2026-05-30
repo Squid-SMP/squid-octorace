@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 import org.orsa.octorace.factory.ItemFactory;
 import org.orsa.octorace.factory.ManufacturedItem;
 import org.orsa.octorace.item.UnmoveableComponent;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import static org.orsa.octorace.Octorace.RACE_MANAGER;
 
@@ -41,8 +41,7 @@ public class QuitItem extends Item implements PolymerItem, ManufacturedItem<Quit
     public void init(ItemFactory<QuitItem> factory) {
         polymerItem = Items.CLAY_BALL;
 
-        var itemStack = new ItemStack(this);
-        unmoveable = new UnmoveableComponent("quit", 8, itemStack);
+        unmoveable = new UnmoveableComponent("quit", 8, this);
     }
 
     public void tick() {

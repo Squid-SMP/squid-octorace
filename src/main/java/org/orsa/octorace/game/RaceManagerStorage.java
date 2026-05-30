@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -48,7 +49,7 @@ public class RaceManagerStorage extends SavedData {
     }
 
     public static final SavedDataType<RaceManagerStorage> TYPE = new SavedDataType<>(
-        "octorace_storage",
+        Identifier.fromNamespaceAndPath("octorace", "octorace_storage"),
         RaceManagerStorage::new,
         CODEC,
         DataFixTypes.SAVED_DATA_RANDOM_SEQUENCES

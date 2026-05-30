@@ -23,7 +23,7 @@ public class PlayerCollisionMixin {
     private List<Entity> filterRacePlayersFromSpinAttack(Level level, Entity excluded, AABB box) {
         List<Entity> entities = level.getEntities(excluded, box);
         LivingEntity self = (LivingEntity)(Object) this;
-        if (!(self instanceof ServerPlayer attacker) || !attacker.getTags().contains("octorace")) {
+        if (!(self instanceof ServerPlayer attacker) || !attacker.entityTags().contains("octorace")) {
             return entities;
         }
 

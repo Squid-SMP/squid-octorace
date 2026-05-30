@@ -115,7 +115,7 @@ public class RaceManager {
 		}
 
 		for (var player : SERVER.getPlayerList().getPlayers()) {
-			if (player.getTags().contains("octorace") && !allParticipants.containsKey(player.getUUID())) {
+			if (player.entityTags().contains("octorace") && !allParticipants.containsKey(player.getUUID())) {
 				clearPlayer(player, false);
 			}
 		}

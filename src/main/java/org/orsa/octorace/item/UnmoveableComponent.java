@@ -13,13 +13,22 @@ import static org.orsa.octorace.Octorace.SERVER;
 public class UnmoveableComponent {
     private final String itemKey;
     private final int slot;
-    private final ItemStack referenceStack;
+    private final net.minecraft.world.item.Item referenceItem;
+    private ItemStack referenceStack;
 
     public List<ServerPlayer> activePlayers = new ArrayList<>();
+
+    public UnmoveableComponent(String itemKey, int slot, net.minecraft.world.item.Item item) {
+        this.itemKey = itemKey;
+        this.slot = slot;
+        this.referenceItem = item;
+        this.referenceStack = null;
+    }
 
     public UnmoveableComponent(String itemKey, int slot, ItemStack referenceStack) {
         this.itemKey = itemKey;
         this.slot = slot;
+        this.referenceItem = referenceStack.getItem();
         this.referenceStack = referenceStack;
     }
 
@@ -74,7 +83,7 @@ public class UnmoveableComponent {
 
     public boolean isItem(ItemStack stack) {
         var item = stack.getItem();
-        var isSameItemAsReference = (item == referenceStack.getItem());
+        var isSameItemAsReference = (item == referenceItem);
 
         if (!isSameItemAsReference) {
             return false;
@@ -99,6 +108,9 @@ public class UnmoveableComponent {
     }
 
     public void giveItem(ServerPlayer player) {
+        if (referenceStack == null) {
+            referenceStack = new ItemStack(referenceItem);
+        }
         player.getInventory().setItem(slot, referenceStack.copy());
     }
 

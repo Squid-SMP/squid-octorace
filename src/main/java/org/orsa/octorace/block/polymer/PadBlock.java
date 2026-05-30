@@ -32,7 +32,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.NonNull;
 import org.orsa.octorace.factory.BlockFactory;
 import org.orsa.octorace.factory.ManufacturedBlock;
-import xyz.nucleoid.packettweaker.PacketContext;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 import static org.orsa.octorace.Octorace.*;
 
