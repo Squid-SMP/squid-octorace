@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "id": "octorace",
+  "id": "squid-octorace",
   "version": "${version}",
-  "name": "octorace",
+  "name": "Squid Octorace",
   "description": "",
   "authors": [],
   "contact": {},
   "license": "All-Rights-Reserved",
-  "accessWidener": "octorace.accesswidener",
+  "accessWidener": "squid-octorace.accesswidener",
   "icon": "assets/octorace/icon.png",
   "environment": "server",
   "entrypoints": {
@@ -16,7 +16,7 @@
     ]
   },
   "mixins": [
-    "octorace.mixins.json"
+    "squid-octorace.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
